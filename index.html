@@ -1,4 +1,165 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rover Vos - Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="sketch.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Rover Vos</h1>
+    <p>Creative Technologist - Game Engineer - Teacher - Nerd</p>
+  </header>
 
-This is exploratory for now.
-A website will be uploaded here in the future
+<nav>
+  <a href="#about">About</a>
+  <a href="#projects">Projects</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+
+<section id="intro-container">
+<div class="intro-box" id="about">
+  <h2>About Me</h2>
+  <div class="about-content">
+    <div class="about-text">
+      <p>
+        I'm a creative technologist with a double academic background:  
+        BSc in <strong>Creative Technology</strong> and MSc in <strong>Game Studies and Engineering</strong>.  
+        I love blending art, code, and play into interactive experiences.
+      </p>
+    </div>
+    <img src="images/BubbleLogo.png" alt="Rover Vos" class="profile-pic" />
+  </div>
+</div>
+
+
+  <div class="intro-box" id="skills">
+    <h2>Core Skills</h2>
+    <ul class="skill-list">
+      <li><strong>Rapid Prototyping</strong> — I build fast, messy, and clever to explore ideas at high velocity. Give me a weird idea and a deadline.</li>
+      <li><strong>Iterative Design</strong> — I'm deeply comfortable with ambiguity. I design in loops, testing, tweaking, and refining based on feedback and feel.</li>
+      <li><strong>LLM Engineering</strong> — I have hands-on experience designing, prompting, and integrating large language models into creative pipelines (including AI comics, NPCs, and installation logic).</li>
+    </ul>
+  </div>
+</section>
+
+
+
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="project-grid">
+
+    <!-- Blender Project -->
+    <div class="project-card">
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="images/BubbleLogo.png" alt="Blender Project" class="card-image">
+          <h3 class="card-title">Blender Animation</h3>
+        </div>
+        <div class="card-back">
+          <h3 class="card-title">Blender Animation</h3>
+          <p>A 3D Blender animation exploring form, movement, and procedural lighting.</p>
+          <p><a href="https://example.com/blender" target="_blank">View Project</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comic Book Project -->
+    <div class="project-card">
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="images/BubbleLogo.png" alt="AI Comic Book" class="card-image">
+          <h3 class="card-title">AI Comic Engine</h3>
+        </div>
+        <div class="card-back">
+          <h3 class="card-title">AI Comic Engine</h3>
+          <p>Turns TTRPG sessions into comics using Whisper, LLaMA, and Stable Diffusion.</p>
+          <p><a href="https://github.com/BubbleCoding/ai-comic-engine" target="_blank">View Project</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best Game -->
+    <div class="project-card">
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="images/BubbleLogo.png" alt="Best Game" class="card-image">
+          <h3 class="card-title">Best Game</h3>
+        </div>
+        <div class="card-back">
+          <h3 class="card-title">Best Game</h3>
+          <p>A game about chaos, control, and discovery. Available on Itch.io.</p>
+          <p><a href="https://bubblewrapfox.itch.io/best-game" target="_blank">View Project</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bachelor Projects -->
+    <div class="project-card">
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="images/BubbleLogo.png" alt="Bachelor Projects" class="card-image">
+          <h3 class="card-title">Bachelor Projects</h3>
+        </div>
+        <div class="card-back">
+          <h3 class="card-title">Bachelor Projects</h3>
+          <p>Academic and artistic work from my Creative Technology BSc.</p>
+          <p><a href="https://github.com/BubbleCoding/bachelor-projects" target="_blank">View Project</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hitloop Work -->
+    <div class="project-card">
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="images/BubbleLogo.png" alt="Hitloop Work" class="card-image">
+          <h3 class="card-title">Hitloop</h3>
+        </div>
+        <div class="card-back">
+          <h3 class="card-title">Hitloop</h3>
+          <p>Current work on ESP32-based games, Raspberry Pi servers, and interactive installations.</p>
+          <p><a href="https://hitloop.nl" target="_blank">View Project</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>Email: <a href="mailto:you@example.com">you@example.com</a></p>
+  </section>
+
+<section id="links">
+  <h2>Connect with Me</h2>
+  <ul class="link-list">
+    <li><a href="https://github.com/BubbleCoding" target="_blank">GitHub</a></li>
+    <li><a href="https://www.linkedin.com/in/rovervos/" target="_blank">LinkedIn</a></li>
+    <li><a href="https://bubblewrapfox.itch.io" target="_blank">Itch.io</a></li>
+  </ul>
+</section>
+
+<section id="built">
+  <h2>How This Site Was Made</h2>
+  <p>
+    This website was <strong>vibe coded</strong> from scratch with pure HTML, CSS, and JavaScript.  
+    No frameworks. No templates. Just me, a blank file, and a late-night playlist.<br><br>
+    I wanted to build something that feels <em>alive</em>: minimal, playful, and personal —  
+    just like the projects I love working on.
+  </p>
+</section>
+
+
+  <footer>
+    <p>&copy; 2025 Your Name</p>
+  </footer>
+</body>
+</html>
