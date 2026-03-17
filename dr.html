@@ -1,1 +1,586 @@
-dark tech test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM BREACH DETECTED</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff0033;
+    --red-dim: #aa0022;
+    --green: #00ff41;
+    --green-dim: #00aa2a;
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --border: #1a1a1a;
+    --text: #cccccc;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* SCAN LINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,65,0.015) 2px,
+      rgba(0,255,65,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanlines 8s linear infinite;
+  }
+
+  /* NOISE OVERLAY */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+    animation: noiseShift 0.15s steps(1) infinite;
+  }
+
+  @keyframes scanlines { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+  @keyframes noiseShift { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-1%,-1%)} 20%{transform:translate(1%,1%)} 30%{transform:translate(-2%,0)} 40%{transform:translate(0,2%)} 50%{transform:translate(2%,-1%)} }
+
+  /* GLITCH TEXT */
+  @keyframes glitch {
+    0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+    5% { clip-path: inset(20% 0 40% 0); transform: translate(-4px, 2px); color: var(--red); }
+    10% { clip-path: inset(60% 0 10% 0); transform: translate(4px, -2px); }
+    15% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+    80% { clip-path: inset(0 0 100% 0); }
+    82% { clip-path: inset(30% 0 50% 0); transform: translate(6px); color: var(--red); }
+    84% { clip-path: inset(0 0 100% 0); }
+  }
+
+  @keyframes glitch2 {
+    0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+    5% { clip-path: inset(50% 0 20% 0); transform: translate(4px, -2px); color: #0ff; }
+    10% { clip-path: inset(10% 0 70% 0); transform: translate(-4px, 2px); }
+    15% { clip-path: inset(0 0 100% 0); }
+    80% { clip-path: inset(0 0 100% 0); }
+    82% { clip-path: inset(60% 0 20% 0); transform: translate(-6px); }
+    84% { clip-path: inset(0 0 100% 0); }
+  }
+
+  @keyframes flicker {
+    0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1; }
+    20%,24%,55% { opacity: 0.4; }
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 10px var(--red),0 0 30px rgba(255,0,51,0.3)} 50%{box-shadow:0 0 25px var(--red),0 0 60px rgba(255,0,51,0.6)} }
+  @keyframes pulse-green { 0%,100%{box-shadow:0 0 5px var(--green)} 50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(0,255,65,0.4)} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes progressBar { from{width:0} to{width:100%} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 10%,50%,90%{transform:translateX(-5px)} 30%,70%{transform:translateX(5px)} }
+
+  /* LAYOUT */
+  #phase-hack {
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  #phase-reveal {
+    display: none;
+    min-height: 100vh;
+    padding: 40px 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    background: #000;
+    animation: fadeIn 1s ease;
+  }
+
+  /* ALERT HEADER */
+  .alert-header {
+    text-align: center;
+    animation: shake 0.5s ease 0.5s;
+  }
+
+  .alert-label {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 0.4em;
+    color: var(--red);
+    animation: flicker 3s infinite;
+  }
+
+  .alert-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(26px, 7vw, 52px);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 20px var(--red), 0 0 60px rgba(255,0,51,0.5);
+    animation: pulse-red 1.5s ease infinite, flicker 4s infinite;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .alert-title::before, .alert-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .alert-title::before { animation: glitch 3s infinite; }
+  .alert-title::after { animation: glitch2 3s infinite; }
+
+  /* STATUS BAR */
+  .status-bar {
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid var(--red-dim);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--red);
+    animation: pulse-red 2s ease infinite;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: blink 0.8s step-end infinite;
+    box-shadow: 0 0 6px var(--red);
+  }
+
+  /* DEVICE INFO PANEL */
+  .panel {
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid #222;
+    background: var(--panel);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    background: #111;
+    border-bottom: 1px solid #222;
+    padding: 6px 12px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-dot { width:6px;height:6px;border-radius:50%; }
+  .pd-red{background:#ff5f57;} .pd-yellow{background:#febc2e;} .pd-green{background:#28c840;}
+
+  .panel-body {
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+
+  .data-row {
+    display: flex;
+    gap: 8px;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  .data-key { color: #555; min-width: 130px; }
+  .data-val { color: var(--green); }
+  .data-val.red { color: var(--red); }
+  .data-val.blink { animation: blink 1s step-end infinite; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: #555;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: #111;
+    border: 1px solid #222;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    animation: progressBar 4s ease forwards;
+  }
+
+  .progress-fill.green {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: progressBar 2s ease forwards;
+  }
+
+  /* TERMINAL LOG */
+  .log-wrap {
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid #1a1a1a;
+    background: #050505;
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.8;
+    max-height: 140px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .log-line {
+    opacity: 0;
+    animation: fadeIn 0.3s ease both;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .log-line.ok { color: var(--green-dim); }
+  .log-line.warn { color: #ffaa00; }
+  .log-line.err { color: var(--red); }
+  .log-line.dim { color: #333; }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--green);
+    vertical-align: middle;
+    animation: blink 0.7s step-end infinite;
+    margin-left: 2px;
+  }
+
+  /* COUNTDOWN */
+  .countdown-wrap {
+    text-align: center;
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  .countdown-num {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 10vw, 64px);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 30px var(--red);
+    animation: pulse-red 0.5s ease infinite, flicker 2s infinite;
+    line-height: 1;
+  }
+
+  /* REVEAL PHASE */
+  .reveal-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(32px, 9vw, 64px);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: 0 0 30px var(--green), 0 0 80px rgba(0,255,65,0.3);
+    letter-spacing: 0.1em;
+    animation: pulse-green 2s ease infinite;
+    text-align: center;
+  }
+
+  .reveal-sub {
+    font-size: clamp(11px, 2.5vw, 14px);
+    letter-spacing: 0.3em;
+    color: #555;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .reveal-divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+
+  .reveal-text {
+    font-size: clamp(13px, 3vw, 16px);
+    color: var(--text);
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.8;
+  }
+
+  .reveal-text span { color: var(--green); }
+
+  .reveal-tag {
+    border: 1px solid var(--green-dim);
+    padding: 12px 28px;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 0.3em;
+    color: var(--green);
+    animation: pulse-green 2s ease infinite;
+    text-align: center;
+  }
+
+  .reveal-small {
+    font-size: 11px;
+    color: #333;
+    letter-spacing: 0.2em;
+    text-align: center;
+  }
+
+  /* CUSTOM CURSOR */
+  .custom-cursor {
+    position: fixed;
+    width: 20px; height: 20px;
+    border: 1px solid var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+    box-shadow: 0 0 8px var(--red);
+  }
+  .custom-cursor::after {
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    width:4px;height:4px;
+    background:var(--red);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+</style>
+</head>
+<body>
+
+<div class="custom-cursor" id="cursor"></div>
+
+<!-- PHASE 1: HACK -->
+<div id="phase-hack">
+
+  <div class="alert-header">
+    <div class="alert-label">⚠ SECURITY ALERT ⚠</div>
+    <div class="alert-title" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+  </div>
+
+  <div class="status-bar">
+    <div><span class="status-dot"></span>BREACH ACTIVE</div>
+    <div id="ts">INITIALIZING...</div>
+  </div>
+
+  <!-- Device data panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-dot pd-red"></div>
+      <div class="panel-dot pd-yellow"></div>
+      <div class="panel-dot pd-green"></div>
+      &nbsp; DEVICE FINGERPRINT — EXTRACTING
+    </div>
+    <div class="panel-body" id="device-data">
+      <div class="data-row" style="animation-delay:0.5s"><span class="data-key">IP ADDRESS</span><span class="data-val red blink" id="d-ip">SCANNING...</span></div>
+      <div class="data-row" style="animation-delay:0.8s"><span class="data-key">BROWSER</span><span class="data-val" id="d-browser">—</span></div>
+      <div class="data-row" style="animation-delay:1.1s"><span class="data-key">OPERATING SYSTEM</span><span class="data-val" id="d-os">—</span></div>
+      <div class="data-row" style="animation-delay:1.4s"><span class="data-key">SCREEN</span><span class="data-val" id="d-screen">—</span></div>
+      <div class="data-row" style="animation-delay:1.7s"><span class="data-key">LANGUAGE</span><span class="data-val" id="d-lang">—</span></div>
+      <div class="data-row" style="animation-delay:2.0s"><span class="data-key">TIMEZONE</span><span class="data-val" id="d-tz">—</span></div>
+      <div class="data-row" style="animation-delay:2.3s"><span class="data-key">BATTERY</span><span class="data-val red" id="d-batt">—</span></div>
+      <div class="data-row" style="animation-delay:2.6s"><span class="data-key">CONNECTION</span><span class="data-val" id="d-conn">—</span></div>
+      <div class="data-row" style="animation-delay:2.9s"><span class="data-key">STATUS</span><span class="data-val red blink">⚠ COMPROMISED</span></div>
+    </div>
+  </div>
+
+  <!-- Progress bars -->
+  <div class="progress-wrap">
+    <div class="progress-label"><span>EXFILTRATING DATA</span><span id="pct1">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="pf1"></div></div>
+  </div>
+
+  <div class="progress-wrap" style="animation-delay:1s">
+    <div class="progress-label"><span>UPLOADING TO DARK SERVER</span><span id="pct2">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="animation-delay:1s" id="pf2"></div></div>
+  </div>
+
+  <!-- Log terminal -->
+  <div class="log-wrap" id="log-terminal">
+    <div class="log-line dim" style="animation-delay:0.2s">[SYS] root@darktech:~# ./breach.sh --target mobile</div>
+    <div class="log-line ok" style="animation-delay:0.8s">[OK ] Payload delivered via QR vector</div>
+    <div class="log-line ok" style="animation-delay:1.4s">[OK ] Network stack probed</div>
+    <div class="log-line warn" style="animation-delay:2.0s">[!  ] Firewall bypass: SUCCESS</div>
+    <div class="log-line ok" style="animation-delay:2.6s">[OK ] Device fingerprint extracted</div>
+    <div class="log-line err" style="animation-delay:3.2s">[ERR] Attempting contact list access...</div>
+    <div class="log-line ok" style="animation-delay:3.8s">[OK ] Geolocation triangulating</div>
+    <div class="log-line err" style="animation-delay:4.4s">[!  ] WARNING: Uplink established — 42 files queued</div>
+    <div style="animation-delay:5.0s;opacity:0;animation:fadeIn 0.3s 5s both"><span class="cursor-blink"></span></div>
+  </div>
+
+  <!-- Countdown -->
+  <div class="countdown-wrap" style="animation-delay:2s">
+    <div class="countdown-label">UPLOAD COMPLETE IN</div>
+    <div class="countdown-num" id="countdown">10</div>
+  </div>
+
+</div>
+
+<!-- PHASE 2: REVEAL -->
+<div id="phase-reveal">
+  <div class="reveal-sub">you've been got by</div>
+  <div class="reveal-logo">DARK TECH</div>
+  <div class="reveal-divider"></div>
+  <div class="reveal-text">
+    Relax — <span>nothing was actually hacked.</span><br>
+    No data was taken. Your phone is fine.<br><br>
+    But if this got your heart rate up for a second,<br>
+    imagine what we build for real.
+  </div>
+  <div class="reveal-tag">DARKTECH.NL &nbsp;·&nbsp; WE BUILD THE SCARY STUFF</div>
+  <div class="reveal-small">// this page was made with code, creativity & zero actual malware //</div>
+</div>
+
+<script>
+  // Custom cursor
+  document.addEventListener('mousemove', e => {
+    const c = document.getElementById('cursor');
+    c.style.left = e.clientX + 'px';
+    c.style.top = e.clientY + 'px';
+  });
+
+  // Timestamp
+  function updateTS() {
+    const now = new Date();
+    document.getElementById('ts').textContent =
+      now.toISOString().replace('T',' ').substring(0,19) + ' UTC';
+  }
+  updateTS();
+  setInterval(updateTS, 1000);
+
+  // Device fingerprint
+  function getOS(ua) {
+    if (/android/i.test(ua)) return 'Android ' + (ua.match(/Android [\d.]+/)?.[0]||'');
+    if (/iphone|ipad/i.test(ua)) return 'iOS';
+    if (/windows/i.test(ua)) return 'Windows';
+    if (/mac/i.test(ua)) return 'macOS';
+    if (/linux/i.test(ua)) return 'Linux';
+    return 'Unknown OS';
+  }
+
+  function getBrowser(ua) {
+    if (/firefox/i.test(ua)) return 'Firefox';
+    if (/edg/i.test(ua)) return 'Microsoft Edge';
+    if (/chrome/i.test(ua)) return 'Chrome';
+    if (/safari/i.test(ua)) return 'Safari';
+    return 'Unknown Browser';
+  }
+
+  const ua = navigator.userAgent;
+  setTimeout(() => { document.getElementById('d-browser').textContent = getBrowser(ua); }, 900);
+  setTimeout(() => { document.getElementById('d-os').textContent = getOS(ua); }, 1200);
+  setTimeout(() => { document.getElementById('d-screen').textContent = `${screen.width}×${screen.height} @ ${window.devicePixelRatio}x DPR`; }, 1500);
+  setTimeout(() => { document.getElementById('d-lang').textContent = navigator.language || 'Unknown'; }, 1800);
+  setTimeout(() => { document.getElementById('d-tz').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone; }, 2100);
+
+  // Fake IP (last octets randomized for drama)
+  setTimeout(() => {
+    const fakeIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+    const el = document.getElementById('d-ip');
+    el.textContent = fakeIP;
+    el.classList.remove('blink');
+  }, 600);
+
+  // Battery
+  if (navigator.getBattery) {
+    navigator.getBattery().then(b => {
+      setTimeout(() => {
+        const pct = Math.round(b.level * 100);
+        const charging = b.charging ? ' ⚡ CHARGING' : '';
+        document.getElementById('d-batt').textContent = `${pct}%${charging}`;
+      }, 2400);
+    });
+  } else {
+    setTimeout(() => { document.getElementById('d-batt').textContent = 'ACCESS DENIED'; }, 2400);
+  }
+
+  // Connection
+  setTimeout(() => {
+    const conn = navigator.connection;
+    if (conn) {
+      document.getElementById('d-conn').textContent = `${conn.effectiveType?.toUpperCase() || 'UNKNOWN'} — ${conn.downlink || '?'} Mbps`;
+    } else {
+      document.getElementById('d-conn').textContent = navigator.onLine ? 'ONLINE' : 'OFFLINE';
+    }
+  }, 2700);
+
+  // Progress counters
+  function animateProgress(fillId, pctId, duration, delay) {
+    const fill = document.getElementById(fillId);
+    const pct = document.getElementById(pctId);
+    let start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      const prog = Math.min((ts - start) / duration, 1);
+      const val = Math.round(prog * 100);
+      pct.textContent = val + '%';
+      if (prog < 1) requestAnimationFrame(step);
+    }
+    setTimeout(() => requestAnimationFrame(step), delay);
+  }
+
+  animateProgress('pf1', 'pct1', 4000, 500);
+  animateProgress('pf2', 'pct2', 3000, 1500);
+
+  // Countdown & phase switch
+  let count = 10;
+  const cdEl = document.getElementById('countdown');
+
+  setTimeout(() => {
+    const interval = setInterval(() => {
+      count--;
+      cdEl.textContent = count;
+      if (count <= 0) {
+        clearInterval(interval);
+        // Switch phase
+        document.getElementById('phase-hack').style.display = 'none';
+        const reveal = document.getElementById('phase-reveal');
+        reveal.style.display = 'flex';
+        // Play with background
+        document.body.style.background = '#000';
+      }
+    }, 1000);
+  }, 2000); // start countdown after 2s
+
+</script>
+</body>
+</html>
