@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egg Painter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --panel: #0f3460;
+    --accent: #e94560;
+    --accent2: #f5a623;
+    --text: #eaeaea;
+    --muted: #7a8ba0;
+    --grid-line: #2a3a55;
+    --cell: 34px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  h1 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 2rem;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+  h1 span { color: var(--accent2); }
+
+  .layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* GRID */
+  .grid-wrap {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--grid-line);
+    position: relative;
+  }
+
+  #egg-svg {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    pointer-events: none;
+  }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(16, var(--cell));
+    grid-template-rows: repeat(16, var(--cell));
+    gap: 2px;
+    cursor: crosshair;
+    user-select: none;
+  }
+
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 4px;
+    background: #0d1b2a;
+    border: 1px solid var(--grid-line);
+    transition: transform 0.06s;
+  }
+  .cell:hover { transform: scale(1.15); z-index: 2; position: relative; }
+
+
+  /* SIDEBAR */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 220px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--grid-line);
+  }
+
+  .panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* PALETTE */
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { border-color: white; transform: scale(1.12); }
+
+  .eraser-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 8px;
+    background: #1e2d40;
+    border: 1px solid var(--grid-line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+  }
+  .eraser-btn:hover, .eraser-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.1s;
+    text-align: center;
+  }
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: var(--accent2); color: #1a1a2e; }
+  .btn-secondary { background: var(--panel); color: var(--text); margin-top: 6px; }
+  .btn-danger { background: #2a1a1a; color: var(--accent); border: 1px solid var(--accent); margin-top: 6px; }
+
+  /* OUTPUT */
+  .output-wrap {
+    width: 100%;
+    max-width: 620px;
+  }
+
+  .output-wrap .panel-title { margin-bottom: 8px; }
+
+  #output {
+    background: #0a0f1a;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    line-height: 1.7;
+    color: #7ec8e3;
+    white-space: pre;
+    overflow-x: auto;
+    border: 1px solid var(--grid-line);
+    min-height: 80px;
+  }
+
+  .copy-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .copy-row .btn { flex: 1; margin: 0; }
+
+  #copy-feedback {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: #4caf50;
+    align-self: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #copy-feedback.show { opacity: 1; }
+
+  /* color number labels in output */
+  .num-0 { color: #2a4060; }
+</style>
+</head>
+<body>
+
+<h1>🥚 Egg <span>Painter</span></h1>
+
+<div class="layout">
+  <div class="grid-wrap">
+    <div id="grid"></div>
+    <svg id="egg-svg"></svg>
+  </div>
+
+  <div class="sidebar">
+    <div class="panel">
+      <div class="panel-title">Colors</div>
+      <div class="palette" id="palette"></div>
+      <button class="eraser-btn" id="eraserBtn">⌫ Eraser</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Actions</div>
+      <button class="btn btn-primary" id="exportBtn">Export to MakeCode</button>
+      <button class="btn btn-secondary" id="fillEggBtn">Fill egg color 1</button>
+      <button class="btn btn-danger" id="clearBtn">Clear all</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Current color</div>
+      <div id="colorPreview" style="width:100%;height:40px;border-radius:8px;background:#eee;border:1px solid var(--grid-line);transition:background 0.2s;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="output-wrap panel" id="outputPanel" style="display:none;">
+  <div class="panel-title">MakeCode output — paste this into your project</div>
+  <div id="output"></div>
+  <div class="copy-row">
+    <button class="btn btn-primary" id="copyBtn">Copy to clipboard</button>
+    <span id="copy-feedback">Copied!</span>
+  </div>
+</div>
+
+<script>
+const COLORS = [
+  { name: 'Red',    hex: '#e94040', makecode: 'NeoPixelColors.Red' },
+  { name: 'Orange', hex: '#f5832a', makecode: 'NeoPixelColors.Orange' },
+  { name: 'Yellow', hex: '#f5c842', makecode: 'NeoPixelColors.Yellow' },
+  { name: 'Green',  hex: '#4caf50', makecode: 'NeoPixelColors.Green' },
+  { name: 'Blue',   hex: '#3a7bd5', makecode: 'NeoPixelColors.Blue' },
+  { name: 'Indigo', hex: '#5c6bc0', makecode: 'NeoPixelColors.Indigo' },
+  { name: 'Violet', hex: '#ce93d8', makecode: 'NeoPixelColors.Violet' },
+  { name: 'Purple', hex: '#9c5fd6', makecode: 'NeoPixelColors.Purple' },
+  { name: 'White',  hex: '#ffffff', makecode: 'NeoPixelColors.White' },
+];
+
+// Egg mask: 1 = egg pixel
+const EGG = [
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+];
+
+// grid[y][x] = colorIndex (0 = empty)
+let grid = Array.from({length:16}, () => new Array(16).fill(0));
+let selectedColor = 1; // 1-based index into COLORS
+let isEraser = false;
+let isPainting = false;
+
+// Build palette
+const paletteEl = document.getElementById('palette');
+COLORS.forEach((c, i) => {
+  const sw = document.createElement('div');
+  sw.className = 'swatch' + (i === 0 ? ' active' : '');
+  sw.style.background = c.hex;
+  sw.title = c.name;
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    selectedColor = i + 1;
+    isEraser = false;
+    document.getElementById('eraserBtn').classList.remove('active');
+    document.getElementById('colorPreview').style.background = c.hex;
+  });
+  paletteEl.appendChild(sw);
+});
+document.getElementById('colorPreview').style.background = COLORS[0].hex;
+
+document.getElementById('eraserBtn').addEventListener('click', () => {
+  isEraser = !isEraser;
+  document.getElementById('eraserBtn').classList.toggle('active', isEraser);
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  document.getElementById('colorPreview').style.background = isEraser ? '#e94560' : COLORS[selectedColor-1].hex;
+});
+
+// Build grid cells
+const gridEl = document.getElementById('grid');
+const cells = [];
+
+for (let y = 0; y < 16; y++) {
+  cells[y] = [];
+  for (let x = 0; x < 16; x++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.x = x;
+    cell.dataset.y = y;
+    gridEl.appendChild(cell);
+    cells[y][x] = cell;
+
+    cell.addEventListener('mousedown', e => { e.preventDefault(); isPainting = true; paint(x, y); });
+    cell.addEventListener('mouseover', () => { if (isPainting) paint(x, y); });
+    cell.addEventListener('touchstart', e => { e.preventDefault(); isPainting = true; paint(x, y); }, {passive:false});
+    cell.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      if (el && el.classList.contains('cell')) paint(+el.dataset.x, +el.dataset.y);
+    }, {passive:false});
+  }
+}
+
+// Draw egg outline as SVG path over the grid
+// Each cell is 34px wide + 2px gap = 36px per cell
+const C = 36;
+const svg = document.getElementById('egg-svg');
+const W = 16 * C - 2;
+svg.setAttribute('width', W);
+svg.setAttribute('height', W);
+svg.setAttribute('viewBox', `0 0 ${W} ${W}`);
+
+// Exact outer contour traced clockwise around the outside of each border pixel.
+// Coordinates are in cell units (multiplied by C for pixels).
+// Cell [row][col] occupies x=col..col+1, y=row..row+1, so the bottom of row 14 is y=15.
+const pts = [
+  [6,0],[10,0],[10,1],[11,1],[11,2],[12,2],[12,4],[13,4],
+  [13,10],[12,10],[12,13],[11,13],[11,14],[10,14],[10,15],
+  [6,15],[6,14],[5,14],[5,13],[4,13],[4,10],[3,10],
+  [3,4],[4,4],[4,2],[5,2],[5,1],[6,1],
+];
+
+const d = pts.map(([x,y], i) => `${i===0?'M':'L'}${x*C},${y*C}`).join(' ') + ' Z';
+
+const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+path.setAttribute('d', d);
+path.setAttribute('stroke', '#4caf50');
+path.setAttribute('stroke-width', '2');
+path.setAttribute('fill', 'none');
+path.setAttribute('stroke-linecap', 'square');
+path.setAttribute('stroke-linejoin', 'miter');
+svg.appendChild(path);
+document.addEventListener('mouseup', () => isPainting = false);
+document.addEventListener('touchend', () => isPainting = false);
+
+function paint(x, y) {
+  if (isEraser) {
+    grid[y][x] = 0;
+  } else {
+    grid[y][x] = selectedColor;
+  }
+  renderCell(x, y);
+}
+
+function renderCell(x, y) {
+  const v = grid[y][x];
+  const cell = cells[y][x];
+  if (v === 0) {
+    cell.style.background = '#0d1b2a';
+    cell.style.borderColor = '';
+  } else {
+    cell.style.background = COLORS[v-1].hex;
+    cell.style.borderColor = COLORS[v-1].hex;
+  }
+}
+
+document.getElementById('fillEggBtn').addEventListener('click', () => {
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++)
+      if (EGG[y][x]) { grid[y][x] = 1; renderCell(x, y); }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++)
+      { grid[y][x] = 0; renderCell(x, y); }
+  document.getElementById('outputPanel').style.display = 'none';
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  // Find which color indices are actually used
+  const used = new Set();
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++)
+      if (grid[y][x] > 0) used.add(grid[y][x]);
+
+  const colorLines = [...used].sort().map(i =>
+    `let color${i} = neopixel.colors(${COLORS[i-1].makecode})`
+  ).join('\n');
+
+  const gridLines = grid.map(row => '    [' + row.join(',') + ']').join(',\n');
+
+  const colorMap = [...used].sort().map(i =>
+    `        case ${i}: strip.setPixelColor(idx(x, y), color${i}); break;`
+  ).join('\n');
+
+  const code =
+`let strip = neopixel.create(DigitalPin.P0, 256, NeoPixelMode.RGB)
+strip.setBrightness(5)
+
+function idx(x: number, y: number): number {
+    if (y % 2 === 0) { return y * 16 + x }
+    else { return y * 16 + (15 - x) }
+}
+
+${colorLines}
+
+let grid = [
+${gridLines}
+]
+
+for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+        switch (grid[y][x]) {
+${colorMap}
+        }
+    }
+}
+strip.show()
+
+// === YOUR CODE BELOW ===`;
+
+  document.getElementById('output').textContent = code;
+  document.getElementById('outputPanel').style.display = 'block';
+  document.getElementById('outputPanel').scrollIntoView({behavior:'smooth'});
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const fb = document.getElementById('copy-feedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 2000);
+  });
+});
+</script>
+</body>
+</html>
