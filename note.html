@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Note — BubbleCoding</title>
+  <title>Note — Rover's Knowledge Vault</title>
   <link rel="stylesheet" href="/assets/css/main.css">
   <!-- Syntax highlighting (GitHub light theme) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
@@ -15,7 +15,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="site-title">BubbleCoding Notes</a>
+      <a href="/" class="site-title">Rover's Knowledge Vault</a>
       <nav>
         <a href="/dr.html">DR Tool</a>
         <a href="/egg-painter.html">Egg Painter</a>
@@ -27,6 +27,7 @@
     <aside class="toc-sidebar" id="toc-sidebar">
       <p class="toc-heading">On this page</p>
       <nav id="toc-nav"></nav>
+      <a class="toc-back-top" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">↑ Back to top</a>
     </aside>
 
     <div class="note-layout">
@@ -115,7 +116,7 @@
         if (h1) title = h1[1];
       }
       if (!title) title = path.split('/').pop().replace(/\.md$/, '');
-      document.title = title + ' — BubbleCoding Notes';
+      document.title = title + " — Rover's Knowledge Vault";
 
       // ── Breadcrumb ─────────────────────────────────────────
       const entry = notesIndex.find(n => n.path === path);

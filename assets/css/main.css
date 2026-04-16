@@ -366,6 +366,18 @@ body.note-page { background: var(--bg); }
 .note-content h3 + p:empty + hr,
 .note-content h4 + p:empty + hr { margin-top: 4px; }
 
+/* Back to top */
+.toc-back-top {
+  display: block;
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.toc-back-top:hover { color: var(--text); }
+
 /* Wikilinks */
 .wikilink-missing {
   color: var(--missing);
