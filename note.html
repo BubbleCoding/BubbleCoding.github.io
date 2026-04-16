@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note — BubbleCoding</title>
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <!-- Syntax highlighting (GitHub light theme) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+</head>
+<body class="note-page">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-title">BubbleCoding Notes</a>
+      <nav>
+        <a href="/dr.html">DR Tool</a>
+        <a href="/egg-painter.html">Egg Painter</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="note-layout">
+    <div class="note-topbar">
+      <a href="/" class="back-link">← All notes</a>
+      <span class="breadcrumb" id="breadcrumb"></span>
+    </div>
+    <article class="note-content" id="note-content">
+      <div class="loading">Loading…</div>
+    </article>
+  </div>
+
+  <script>
+    let notesIndex = [];
+
+    // ── Marked setup ──────────────────────────────────────────
+    marked.use({
+      renderer: {
+        code(codeOrToken, lang) {
+          // Handle both marked v4 (string) and v9 (token object)
+          let text = codeOrToken, language = lang;
+          if (typeof codeOrToken === 'object' && codeOrToken !== null) {
+            text     = codeOrToken.text || codeOrToken.raw || '';
+            language = codeOrToken.lang || '';
+          }
+          language = (language && hljs.getLanguage(language)) ? language : 'plaintext';
+          const highlighted = hljs.highlight(String(text), { language }).value;
+          return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+        }
+      }
+    });
+
+    // ── Main ──────────────────────────────────────────────────
+    async function loadNote() {
+      const params = new URLSearchParams(window.location.search);
+      const path   = params.get('path');
+      if (!path) { showError('No note path specified.'); return; }
+
+      try {
+        const [indexRes, noteRes] = await Promise.all([
+          fetch('/notes-index.json?t=' + Date.now()),
+          fetch('/' + path + '?t=' + Date.now())
+        ]);
+
+        if (!noteRes.ok) throw new Error('Note not found (404).');
+        notesIndex = await indexRes.json().catch(() => []);
+        const raw  = await noteRes.text();
+        renderNote(raw, path);
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    function renderNote(raw, path) {
+      // ── Extract frontmatter ────────────────────────────────
+      let content = raw;
+      let fm = {};
+      const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+      if (fmMatch) {
+        content = raw.slice(fmMatch[0].length);
+        // Very small YAML parser (key: value only — enough for our frontmatter)
+        fmMatch[1].split('\n').forEach(line => {
+          const m = line.match(/^(\w[\w-]*):\s*(.*)$/);
+          if (m) fm[m[1]] = m[2].replace(/^["']|["']$/g, '').trim();
+        });
+      }
+
+      // ── Title ──────────────────────────────────────────────
+      let title = fm.title || '';
+      if (!title) {
+        const h1 = content.match(/^#\s+(.+)$/m);
+        if (h1) title = h1[1];
+      }
+      if (!title) title = path.split('/').pop().replace(/\.md$/, '');
+      document.title = title + ' — BubbleCoding Notes';
+
+      // ── Breadcrumb ─────────────────────────────────────────
+      const entry = notesIndex.find(n => n.path === path);
+      if (entry && entry.folder) {
+        document.getElementById('breadcrumb').textContent = entry.folder;
+      }
+
+      // ── Render markdown ────────────────────────────────────
+      let html = marked.parse(content);
+
+      // ── Wikilinks ──────────────────────────────────────────
+      html = html.replace(/\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g, (_m, target, alias) => {
+        const display = alias ? alias.trim() : target.trim();
+        const found   = notesIndex.find(n =>
+          n.title === target.trim() ||
+          n.path.replace(/\.md$/, '').split('/').pop() === target.trim()
+        );
+        if (found) {
+          return `<a href="/note.html?path=${encodeURIComponent(found.path)}">${esc(display)}</a>`;
+        }
+        return `<span class="wikilink-missing" title="Not yet published">${esc(display)}</span>`;
+      });
+
+      document.getElementById('note-content').innerHTML = html;
+    }
+
+    function showError(msg) {
+      document.getElementById('note-content').innerHTML =
+        `<div class="error-msg">Could not load note: ${esc(msg)}</div>`;
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadNote();
+  </script>
+</body>
+</html>
