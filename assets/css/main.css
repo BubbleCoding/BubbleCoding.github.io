@@ -226,11 +226,11 @@ body.note-page { background: var(--bg); }
 .breadcrumb::before { content: '/'; margin-right: 8px; }
 
 /* Typography */
-.note-content h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 28px; line-height: 1.2; }
-.note-content h2 { font-size: 1.35rem; font-weight: 600; margin: 44px 0 16px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.note-content h3 { font-size: 1.1rem;  font-weight: 600; margin: 32px 0 12px; }
-.note-content h4 { font-size: 1rem;    font-weight: 600; margin: 24px 0 8px; }
-.note-content h5, .note-content h6 { font-size: 0.9rem; font-weight: 600; margin: 20px 0 8px; }
+.note-content h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 4px; line-height: 1.2; }
+.note-content h2 { font-size: 1.35rem; font-weight: 600; margin: 44px 0 4px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.note-content h3 { font-size: 1.1rem;  font-weight: 600; margin: 32px 0 4px; }
+.note-content h4 { font-size: 1rem;    font-weight: 600; margin: 24px 0 4px; }
+.note-content h5, .note-content h6 { font-size: 0.9rem; font-weight: 600; margin: 20px 0 4px; }
 
 .note-content p { margin-bottom: 16px; }
 .note-content > *:last-child { margin-bottom: 0; }
@@ -292,7 +292,7 @@ body.note-page { background: var(--bg); }
 }
 .note-content th { background: var(--surface); font-weight: 600; }
 
-.note-content hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.note-content hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
 
 .note-content h1 + hr,
 .note-content h2 + hr,
