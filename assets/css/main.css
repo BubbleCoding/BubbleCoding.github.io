@@ -40,7 +40,6 @@ body {
    HEADER
    ============================================================ */
 .site-header {
-  border-bottom: 1px solid var(--border);
   padding: 0 24px;
   position: sticky;
   top: 0;
