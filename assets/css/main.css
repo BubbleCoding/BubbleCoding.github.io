@@ -294,6 +294,11 @@ body.note-page { background: var(--bg); }
 
 .note-content hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
 
+.note-content h1 + hr,
+.note-content h2 + hr,
+.note-content h3 + hr,
+.note-content h4 + hr { margin-top: 8px; }
+
 /* Wikilinks */
 .wikilink-missing {
   color: var(--missing);
