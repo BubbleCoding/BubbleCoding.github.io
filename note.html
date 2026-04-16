@@ -23,14 +23,21 @@
     </div>
   </header>
 
-  <div class="note-layout">
-    <div class="note-topbar">
-      <a href="/" class="back-link">← All notes</a>
-      <span class="breadcrumb" id="breadcrumb"></span>
+  <div class="note-outer">
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <p class="toc-heading">On this page</p>
+      <nav id="toc-nav"></nav>
+    </aside>
+
+    <div class="note-layout">
+      <div class="note-topbar">
+        <a href="/" class="back-link">← All notes</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+      </div>
+      <article class="note-content" id="note-content">
+        <div class="loading">Loading…</div>
+      </article>
     </div>
-    <article class="note-content" id="note-content">
-      <div class="loading">Loading…</div>
-    </article>
   </div>
 
   <script>
@@ -40,7 +47,6 @@
     marked.use({
       renderer: {
         code(codeOrToken, lang) {
-          // Handle both marked v4 (string) and v9 (token object)
           let text = codeOrToken, language = lang;
           if (typeof codeOrToken === 'object' && codeOrToken !== null) {
             text     = codeOrToken.text || codeOrToken.raw || '';
@@ -59,12 +65,11 @@
       const path   = params.get('path');
       if (!path) { showError('No note path specified.'); return; }
 
-      // Redirect PDFs and DOCX files instead of trying to render them
-      if (/\.(pdf)$/i.test(path)) {
+      if (/\.pdf$/i.test(path)) {
         window.location.replace('/' + path);
         return;
       }
-      if (/\.(docx)$/i.test(path)) {
+      if (/\.docx$/i.test(path)) {
         const a = document.createElement('a');
         a.href = '/' + path;
         a.download = path.split('/').pop() || 'document.docx';
@@ -97,7 +102,6 @@
       const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
       if (fmMatch) {
         content = raw.slice(fmMatch[0].length);
-        // Very small YAML parser (key: value only — enough for our frontmatter)
         fmMatch[1].split('\n').forEach(line => {
           const m = line.match(/^(\w[\w-]*):\s*(.*)$/);
           if (m) fm[m[1]] = m[2].replace(/^["']|["']$/g, '').trim();
@@ -136,6 +140,57 @@
       });
 
       document.getElementById('note-content').innerHTML = html;
+
+      // ── Table of contents ──────────────────────────────────
+      buildToc();
+    }
+
+    function buildToc() {
+      const headings = Array.from(
+        document.querySelectorAll('.note-content h2, .note-content h3')
+      );
+      const sidebar = document.getElementById('toc-sidebar');
+      const nav     = document.getElementById('toc-nav');
+
+      if (headings.length < 2) {
+        sidebar.style.display = 'none';
+        return;
+      }
+
+      // Ensure every heading has an id (marked adds them but just in case)
+      headings.forEach((h, i) => {
+        if (!h.id) h.id = 'h-' + i;
+      });
+
+      // Build links
+      const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 57;
+      headings.forEach(h => {
+        const a = document.createElement('a');
+        a.href        = '#' + h.id;
+        a.textContent = h.textContent;
+        a.className   = 'toc-link toc-' + h.tagName.toLowerCase();
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const top = h.getBoundingClientRect().top + window.scrollY - headerH - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+          history.pushState(null, '', '#' + h.id);
+        });
+        nav.appendChild(a);
+      });
+
+      // Highlight current section on scroll
+      window.addEventListener('scroll', () => {
+        let current = headings[0].id;
+        headings.forEach(h => {
+          if (h.getBoundingClientRect().top <= 100) current = h.id;
+        });
+        nav.querySelectorAll('.toc-link').forEach(l => {
+          l.classList.toggle('toc-active', l.getAttribute('href') === '#' + current);
+        });
+      }, { passive: true });
+
+      // Set initial active state
+      nav.querySelector('.toc-link')?.classList.add('toc-active');
     }
 
     function showError(msg) {

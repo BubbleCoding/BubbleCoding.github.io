@@ -1,19 +1,25 @@
 /* ============================================================
    BASE
    ============================================================ */
+
+
+@view-transition{
+  navigation:auto;
+}
+  
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #ffffff;
-  --surface:      #f8f8f8;
-  --border:       #e5e5e5;
-  --text:         #1a1a1a;
+  --bg:           #faf9f7;
+  --surface:      #f2f1ee;
+  --border:       #e6e4e0;
+  --text:         #1c1b19;
   --muted:        #6b7280;
   --accent:       #2563eb;
   --accent-hover: #1d4ed8;
-  --tag-bg:       #eff6ff;
+  --tag-bg:       #eef3ff;
   --tag-color:    #1d4ed8;
-  --code-bg:      #f4f4f5;
+  --code-bg:      #edecea;
   --missing:      #9ca3af;
   --font-sans:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
@@ -38,7 +44,7 @@ body {
   padding: 0 24px;
   position: sticky;
   top: 0;
-  background: rgba(255,255,255,0.95);
+  background: rgba(250,249,247,0.95);
   backdrop-filter: blur(8px);
   z-index: 100;
 }
@@ -65,6 +71,7 @@ body {
   color: var(--muted);
   text-decoration: none;
   font-size: 0.875rem;
+  cursor: pointer;
   transition: color 0.15s;
 }
 .site-header nav a:hover { color: var(--text); }
@@ -102,6 +109,7 @@ body {
   outline: none;
   background: var(--surface);
   color: var(--text);
+  cursor: text;
   transition: border-color 0.15s;
 }
 .search-box input:focus { border-color: var(--accent); }
@@ -137,6 +145,7 @@ body {
   border-radius: 8px;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .note-card:hover {
@@ -200,10 +209,58 @@ body {
    ============================================================ */
 body.note-page { background: var(--bg); }
 
-.note-layout {
-  max-width: 740px;
+/* Outer wrapper — ToC + note side by side */
+.note-outer {
+  display: flex;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 24px 100px;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+/* ToC sidebar */
+.toc-sidebar {
+  width: 190px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+  max-height: calc(100vh - var(--header-h) - 64px);
+  overflow-y: auto;
+}
+
+.toc-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.toc-link {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 3px 0;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc-link:hover  { color: var(--text); }
+.toc-active      { color: var(--accent) !important; }
+.toc-h3          { padding-left: 12px; font-size: 0.76rem; }
+
+/* Note content area */
+.note-layout {
+  flex: 1;
+  min-width: 0;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .note-topbar {
@@ -218,6 +275,7 @@ body.note-page { background: var(--bg); }
 .back-link {
   color: var(--muted);
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.15s;
 }
 .back-link:hover { color: var(--text); }
@@ -227,10 +285,15 @@ body.note-page { background: var(--bg); }
 
 /* Typography */
 .note-content h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 4px; line-height: 1.2; }
-.note-content h2 { font-size: 1.35rem; font-weight: 600; margin: 44px 0 4px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.note-content h3 { font-size: 1.1rem;  font-weight: 600; margin: 32px 0 4px; }
-.note-content h4 { font-size: 1rem;    font-weight: 600; margin: 24px 0 4px; }
-.note-content h5, .note-content h6 { font-size: 0.9rem; font-weight: 600; margin: 20px 0 4px; }
+.note-content h2 { font-size: 1.35rem; font-weight: 600; margin: 4px 0 4px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.note-content h3 { font-size: 1.1rem;  font-weight: 600; margin: 4px 0 4px; }
+.note-content h4 { font-size: 1rem;    font-weight: 600; margin: 4px 0 4px; }
+.note-content h5, .note-content h6 { font-size: 0.9rem; font-weight: 600; margin: 4px 0 4px; }
+
+.note-content h1,
+.note-content h2,
+.note-content h3,
+.note-content h4 { scroll-margin-top: calc(var(--header-h) + 16px); }
 
 .note-content p { margin-bottom: 16px; }
 .note-content > *:last-child { margin-bottom: 0; }
@@ -338,5 +401,7 @@ body.note-page { background: var(--bg); }
   }
   .main-content { padding: 16px; }
   .notes-grid { grid-template-columns: 1fr; }
-  .note-layout { padding: 24px 16px 60px; }
+
+  .note-outer { padding: 24px 16px 60px; gap: 0; }
+  .toc-sidebar { display: none; }
 }
