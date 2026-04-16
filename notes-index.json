@@ -1,19 +1,11 @@
 [
   {
-    "title": "Test",
-    "path": "notes/Test.md",
-    "folder": "",
-    "tags": [],
-    "fileType": "note",
-    "lastModified": "2026-04-16T08:16:53.503Z"
-  },
-  {
     "title": "Opzet feedback en hulp bij leervraag",
     "path": "notes/Handige bestanden/Opzet feedback en hulp bij leervraag.md",
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-04-16T08:16:54.527Z"
+    "lastModified": "2026-04-16T08:37:55.687Z"
   },
   {
     "title": "retro-kit-spotify",
@@ -21,6 +13,6 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "pdf",
-    "lastModified": "2026-04-16T08:16:57.090Z"
+    "lastModified": "2026-04-16T08:37:58.643Z"
   }
 ]
