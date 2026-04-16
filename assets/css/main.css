@@ -210,7 +210,7 @@ body.note-page { background: var(--bg); }
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 36px;
+  margin-bottom: 4px;
   font-size: 0.875rem;
   color: var(--muted);
 }
@@ -292,12 +292,16 @@ body.note-page { background: var(--bg); }
 }
 .note-content th { background: var(--surface); font-weight: 600; }
 
-.note-content hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+.note-content hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
 .note-content h1 + hr,
 .note-content h2 + hr,
 .note-content h3 + hr,
-.note-content h4 + hr { margin-top: 8px; }
+.note-content h4 + hr { margin-top: 4px; }
+.note-content h1 + p:empty + hr,
+.note-content h2 + p:empty + hr,
+.note-content h3 + p:empty + hr,
+.note-content h4 + p:empty + hr { margin-top: 4px; }
 
 /* Wikilinks */
 .wikilink-missing {
