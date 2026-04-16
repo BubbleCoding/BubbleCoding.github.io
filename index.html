@@ -112,9 +112,27 @@
       filtered.forEach(note => {
         const a = document.createElement('a');
         a.className = 'note-card';
-        a.href = '/note.html?path=' + encodeURIComponent(note.path);
+
+        if (note.fileType === 'pdf') {
+          a.href   = '/' + note.path;
+          a.target = '_blank';
+          a.rel    = 'noopener';
+        } else if (note.fileType === 'docx') {
+          a.href     = '/' + note.path;
+          a.download = '';
+        } else {
+          a.href = '/note.html?path=' + encodeURIComponent(note.path);
+        }
+
+        const typeLabel = note.fileType === 'pdf'  ? 'PDF'
+                        : note.fileType === 'docx' ? 'DOCX'
+                        : '';
+        const typeBadge = typeLabel
+          ? `<span class="file-type-badge file-type-${note.fileType}">${typeLabel}</span>`
+          : '';
+
         a.innerHTML =
-          `<div class="note-card-title">${esc(note.title)}</div>` +
+          `<div class="note-card-title-row"><span class="note-card-title">${esc(note.title)}</span>${typeBadge}</div>` +
           (note.folder ? `<div class="note-card-folder">${esc(note.folder)}</div>` : '') +
           ((note.tags && note.tags.length)
             ? `<div class="note-card-tags">${note.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>`

@@ -59,6 +59,22 @@
       const path   = params.get('path');
       if (!path) { showError('No note path specified.'); return; }
 
+      // Redirect PDFs and DOCX files instead of trying to render them
+      if (/\.(pdf)$/i.test(path)) {
+        window.location.replace('/' + path);
+        return;
+      }
+      if (/\.(docx)$/i.test(path)) {
+        const a = document.createElement('a');
+        a.href = '/' + path;
+        a.download = path.split('/').pop() || 'document.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showError('Download started for ' + esc(path.split('/').pop() || path));
+        return;
+      }
+
       try {
         const [indexRes, noteRes] = await Promise.all([
           fetch('/notes-index.json?t=' + Date.now()),

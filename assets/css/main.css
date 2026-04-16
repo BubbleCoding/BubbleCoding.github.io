@@ -143,11 +143,31 @@ body {
   border-color: var(--accent);
   box-shadow: 0 1px 6px rgba(37,99,235,0.09);
 }
+.note-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .note-card-title {
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.file-type-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+.file-type-pdf  { background: #fef2f2; color: #b91c1c; }
+.file-type-docx { background: #eff6ff; color: #1d4ed8; }
 .note-card-folder {
   font-size: 0.78rem;
   color: var(--muted);
