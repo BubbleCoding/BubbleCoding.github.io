@@ -1,4 +1,4 @@
-## Opzet feedback en hulp bij leervraag door studentmentor/docent
+## Feedback en hulp bij leervraag door studentmentor/docent
 
 Dit stappenplan helpt je om zo gericht en efficiënt mogelijk hulp te krijgen van de studentmentor en docenten. Een duidelijke hulpvraag is de sleutel tot succesvolle begeleiding.
 
