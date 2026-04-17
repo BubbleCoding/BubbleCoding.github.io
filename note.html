@@ -66,13 +66,16 @@
       const path   = params.get('path');
       if (!path) { showError('No note path specified.'); return; }
 
+      // encodeURI encodes spaces/special chars but leaves / intact
+      const encodedPath = encodeURI(path);
+
       if (/\.pdf$/i.test(path)) {
-        window.location.replace('/' + path);
+        window.location.replace('/' + encodedPath);
         return;
       }
       if (/\.docx$/i.test(path)) {
         const a = document.createElement('a');
-        a.href = '/' + path;
+        a.href = '/' + encodedPath;
         a.download = path.split('/').pop() || 'document.docx';
         document.body.appendChild(a);
         a.click();
@@ -84,7 +87,7 @@
       try {
         const [indexRes, noteRes] = await Promise.all([
           fetch('/notes-index.json?t=' + Date.now()),
-          fetch('/' + path + '?t=' + Date.now())
+          fetch('/' + encodedPath + '?t=' + Date.now())
         ]);
 
         if (!noteRes.ok) throw new Error('Note not found (404).');
