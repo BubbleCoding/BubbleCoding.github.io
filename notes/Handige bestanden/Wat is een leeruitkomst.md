@@ -4,6 +4,8 @@
 ## Leeruitkomsten
 Dit document geeft je een indruk over wat leeruitkomsten zijn, waarom leeruitkomsten worden gebruikt binnen HBO-ICT en komt met een aantal voorbeelden wat je voor een leeruitkomst kunt doen. Voor de exacte en meest up to date beschrijving van de leeruitkomsten moet je de studiehandleiding bekijken, dit document is ter ondersteuning.
 
+**Toevoegen: Iets over Pragmatisch toetsen**
+
 ### Wat zijn leeruitkomsten?
 Tijdens je opleiding op de Hogeschool van Amsterdam heb je veel te maken met leeruitkomsten. Dit is onze manier om je ontwikkeling te volgen en te beoordelen of je naar het volgende semester mag. Aan het eind van het semester beoordeelt de besliscommissie (een groep docenten) aan de hand van je leeruitkomsten en je project wat je eindcijfer is.
 ### Waarom leeruitkomsten?
@@ -19,12 +21,13 @@ In je professionele leven gaat er niemand tegen jou zeggen wat je precies moet d
 Onderdelen van Persoonlijk Leiderschap:
 1. Agenda bijhouden.
 2. Doelgericht feedback vragen.
-3. Leeruitkomsten opstellen en afronden.
+3. Persoonlijke leerdoelen opstellen en afronden.
 4. Reflecteren op je gedrag.
 5. Herkennen van je sterke en zwakke punten.
 6. Aanwezig zijn op school.
 7. Afspraken met andere mensen en jezelf nakomen.
 ### Doelgericht Interacteren
+**Deze intro wil ik nog veranderen**
 Je moet een presentatie geven aan een bepaald publiek, hoe bereid jij je dan voor? Doe jij een zwembroek aan, een net pak of toch iets er tussen in? Als jij een zwemdocent bent en je moet een presentatie geven in het zwembad is een zwembroek best logisch en gepast. Dus afhankelijk van de situatie wordt er van jou verwacht dat je je anders gedraagt.
 
 Onderdelen van Doelgericht Interacteren:
@@ -46,14 +49,15 @@ Onderdelen van Onderzoekend Probleemoplossen:
 3. Testen van gemaakt werk aan de hand van gebruikersonderzoek of interviews.
 4. Het toepassen van onderzoek resultaten en feedback in je werk.
 5. Helder presenteren en opschrijven van je werk aan de hand van een verslag of presentatie.
+6. Bronnen zoeken, vermelden en correct toepassen in je werk.
 ### Toekomstgericht Organiseren
-Je moet dit semester aan een project gaan werken, hoe begin je daar mee?  Open je een IDE en begin je met bouwen? Ga je eerst snacks halen? Vraag je de docent wat je moet doen? Of ga je met je groep zitten om te overleggen wat je gaat maken en hoe je dat gaat maken? Om goed te scoren bij Toekomstgericht Organiseren verwachten docenten van jou dat je verder kijkt dan nu. Je moet je bewust zijn van hoe dit semester er uit ziet, hoe jij met je team te werk gaat, hoe je je het doel bereikt en wat voor impact je project kan hebben op mensen en de wereld.
+Je moet dit semester aan een project gaan werken, hoe begin je daar mee?  Begin je direct met programmeren en het bouwen van je applicatie? Ga je eerst snacks halen? Vraag je de docent wat je moet doen? Of ga je met je groep zitten om te overleggen wat je gaat maken en hoe je dat gaat maken? Om goed te scoren bij Toekomstgericht Organiseren verwachten docenten van jou dat je verder kijkt dan nu. Je moet je bewust zijn van hoe dit semester er uit ziet, hoe jij met je team te werk gaat, hoe je je het doel bereikt en wat voor impact je project kan hebben op mensen en de wereld.
 
 Tijdens je carrière ga je waarschijnlijk aan projecten werken die meerdere maanden, misschien wel jaren duren. Bij dit soort projecten wordt het heel moeilijk om een goed overzicht te houden als je niets afspreekt en niets noteert. Als iedereen in een project team op een andere manier werkt in de code wordt het chaos. Dit draait om meer dan alleen het werk, je moet ook rekening houden met ethische of maatschappelijke normen en waarden.
 
 Onderdelen van Toekomstgericht Organiseren:
 1. Agenda bijhouden.
-2. Regelmatige GitHub commits.
+2. Regelmatige en betekenisvolle GitHub commits en merge requests.
 3. Bespreek regelmatig risico's en kansen met belanghebbenden.
 4. Goed gebruik maken van je sprintboard.
 5. Het maken van aantekeningen tijdens meetings en van feedback.
@@ -98,6 +102,7 @@ Persoonlijk Leiderschap:
 1. De student is naar een relevant congres/banenbeurs gegaan, heeft hier interactie gehad met mensen uit het vak gebied en heeft hier een verslag over geschreven of presentatie over gegeven.
 2. De student heeft iets in zijn leven meegemaakt en heeft hier een uitgebreide zelfreflectie over geschreven.
 3. De student heeft leeruitkomsten opgesteld en heeft deze goed afgerond.
+4. De student heeft een relevante cursus afgerond, bijvoorbeeld LinkedIn learning.
 
 Doelgericht Interacteren
 1. De student heeft een presentatie gegeven over een relevant onderwerp aan een relevant publiek.
@@ -116,4 +121,3 @@ Toekomstgericht Organiseren
 
 
 Disclaimer: Dit document is voor inspiratie en algemeen uitleg. Vraag aan een van je docenten of ze het eens zijn met hoe jij een leeruitkomst wil aantonen.
-
