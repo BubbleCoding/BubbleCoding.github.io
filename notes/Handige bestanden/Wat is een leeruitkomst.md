@@ -4,8 +4,6 @@
 ## Leeruitkomsten
 Dit document geeft je een indruk over wat leeruitkomsten zijn, waarom leeruitkomsten worden gebruikt binnen HBO-ICT en komt met een aantal voorbeelden wat je voor een leeruitkomst kunt doen. Voor de exacte en meest up to date beschrijving van de leeruitkomsten moet je de studiehandleiding bekijken, dit document is ter ondersteuning.
 
-**Toevoegen: Iets over Pragmatisch toetsen**
-
 ### Wat zijn leeruitkomsten?
 Tijdens je opleiding op de Hogeschool van Amsterdam heb je veel te maken met leeruitkomsten. Dit is onze manier om je ontwikkeling te volgen en te beoordelen of je naar het volgende semester mag. Aan het eind van het semester beoordeelt de besliscommissie (een groep docenten) aan de hand van je leeruitkomsten en je project wat je eindcijfer is.
 ### Waarom leeruitkomsten?
@@ -27,7 +25,6 @@ Onderdelen van Persoonlijk Leiderschap:
 6. Aanwezig zijn op school.
 7. Afspraken met andere mensen en jezelf nakomen.
 ### Doelgericht Interacteren
-**Deze intro wil ik nog veranderen**
 Je moet een presentatie geven aan een bepaald publiek, hoe bereid jij je dan voor? Doe jij een zwembroek aan, een net pak of toch iets er tussen in? Als jij een zwemdocent bent en je moet een presentatie geven in het zwembad is een zwembroek best logisch en gepast. Dus afhankelijk van de situatie wordt er van jou verwacht dat je je anders gedraagt.
 
 Onderdelen van Doelgericht Interacteren:
@@ -63,37 +60,8 @@ Onderdelen van Toekomstgericht Organiseren:
 5. Het maken van aantekeningen tijdens meetings en van feedback.
 6. Rekening houden met ethische en/of maatschappelijke normen en waarden.
 
-
-## Technische
-Hier komt een korte intro over deze leeruitkomsten.
-
-### Software
-Stel een vraag van werk wat de student moet doen.  -> Voorbeeld keuzes. -> Wat docenten verwachten. -> Waarom dit belangrijk is.
-
-Impact op carrière van student. -> Iets breder trekken naar het leven algemeen.
-
-Onderdelen van Software:
-1. Hier komen voorbeelden
-
-### Infrastructuur
-Stel een vraag van werk wat de student moet doen.  -> Voorbeeld keuzes. -> Wat docenten verwachten. -> Waarom dit belangrijk is.
-
-Impact op carrière van student. -> Iets breder trekken naar het leven algemeen.
-
-Onderdelen van Infrastructuur:
-1. Hier komen voorbeelden
-
-### Gebruikersinteractie
-Stel een vraag van werk wat de student moet doen.  -> Voorbeeld keuzes. -> Wat docenten verwachten. -> Waarom dit belangrijk is.
-
-Impact op carrière van student. -> Iets breder trekken naar het leven algemeen.
-
-Onderdelen van Gebruikersinteractie:
-1. Hier komen voorbeelden
-
-
-## Waarom is er overlap?
-Hier komt uitleg over waarom het voelt dat sommige leerdoelen overlappen en waarom sommige leerdoelen letterlijk overlap hebben.
+## Technisch
+Deze tekst moet nog geschreven worden.
 
 ## Alternatieve voorbeelden
 Deze alternatieve voorbeelden zouden manieren kunnen zijn die je kunt gebruiken om een leeruitkomst aan te tonen. Hou er rekening mee dat deze indicatief zijn, ga niet aan de hand van deze lijst iets doen zonder het eerst met je docent te checken. Deze alternatieve opties zijn voornamelijk voor als je iets extra wil doen voor een hoger cijfer of een vrij datapunt mag kiezen.
@@ -107,7 +75,6 @@ Persoonlijk Leiderschap:
 Doelgericht Interacteren
 1. De student heeft een presentatie gegeven over een relevant onderwerp aan een relevant publiek.
 2. De student heeft een presentatie gegeven op een podium.
-3. 
 
 Onderzoekend Probleemoplossen
 1. De student heeft een verslag geschreven over een bepaalde keuze die gemaakt is. Hierbij is duidelijk gemaakt waarom deze keuze en waarom niet de andere opties.
