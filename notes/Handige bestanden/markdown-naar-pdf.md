@@ -28,7 +28,7 @@ Relatieve paden (vanaf de locatie van je `.md` bestand) verdienen de voorkeur â€
 
 ---
 
-## Optie 1: VS Code plugin (aanrader voor de meeste studenten)
+## Optie 1: VS Code plugin
 
 VS Code en waarschijnlijk ook wel andere IDE's hebben een plugin die Markdown bestanden omzet naar PDF. Voor VS Code is het specifiek de plugin **Markdown PDF** van yzane.
 
@@ -81,7 +81,7 @@ Gebruik je Obsidian voor je aantekeningen? Dan is dit de makkelijkste route:
 
 Obsidian's eigen `![[afbeelding.png]]` syntax werkt, en gewone Markdown `![](pad)` ook.
 
-## Optie 4: Pandoc (voor de liefhebbers)
+## Optie 4: Pandoc (CLI)
 
 Pandoc is een command-line tool die zo'n beetje elk documentformaat naar elk ander formaat omzet. Wat meer gedoe om te installeren, maar veruit het krachtigst â€” en handig als je later veel documenten tegelijk wilt converteren (scriptbaar).
 
@@ -105,17 +105,22 @@ pandoc opdracht.md -o opdracht.pdf --pdf-engine=weasyprint --css=style.css
 
 Waarom `weasyprint` als engine? De standaard `xelatex` werkt ook, maar vereist een complete LaTeX installatie (paar GB). `weasyprint` is veel lichter en gaat soepeler om met lokale afbeeldingspaden.
 
+## Optie 5: GitLab
+
+Binnen GitLab kan je een Markdown bestand als PDF printen. Dit ziet er niet altijd mooi uit, maar het werkt meestal goed genoeg. Klik op het 3 button menu en klik dan op print als PDF. Dan krijg je de printer pagina, hier kan je switchen van een printer naar Save as PDF.
+
 ---
 
 ## Welke optie kies ik?
 
-| Situatie | Aanrader |
-|---|---|
-| Ik werk in VS Code | Optie 1 (Markdown PDF) |
-| Ik werk in Android Studio / IntelliJ | Optie 2 |
-| Ik gebruik Obsidian | Optie 3 |
-| Ik wil meerdere bestanden tegelijk converteren | Optie 4 (Pandoc) |
-| Ik wil de mooiste/meest controleerbare output | Optie 4 (Pandoc + CSS) |
+| Situatie                                       | Aanrader               |
+| ---------------------------------------------- | ---------------------- |
+| Ik werk in VS Code                             | Optie 1 (Markdown PDF) |
+| Ik werk in Android Studio / IntelliJ           | Optie 2                |
+| Ik gebruik Obsidian                            | Optie 3                |
+| Ik wil meerdere bestanden tegelijk converteren | Optie 4 (Pandoc)       |
+| Ik wil de mooiste/meest controleerbare output  | Optie 4 (Pandoc + CSS) |
+| Ik heb haast en het staat in GitLab            | Optie 5                |
 
 ## Controleer altijd je PDF!
 
