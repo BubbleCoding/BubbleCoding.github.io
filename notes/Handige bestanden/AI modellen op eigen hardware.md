@@ -6,25 +6,30 @@ Dit document geeft een overzicht van de meest gebruikte tools per categorie (tek
 
 ## Eerst iets draaiend krijgen
 
-Installeer [Ollama](https://ollama.com/) en draai in je terminal:
+Download [LM Studio](https://lmstudio.ai/) en installeer het zoals elke andere applicatie. In de Discover-tab zoek je een model; LM Studio zegt er per model bij of het op jouw machine past en welke quantisaties beschikbaar zijn. Kies iets kleins om mee te beginnen (rond de 3-4B, Q4), download het, en chat ermee in de Chat-tab.
+
+De reden om hier te beginnen en niet bij een terminal: je ziet wat er gebeurt. GPU-offload en contextlengte zitten als schuifjes in beeld, en als een model niet in je geheugen past merk je dat aan de interface in plaats van aan een cryptische foutmelding. Dat zijn precies de begrippen waar de rest van dit document over gaat.
+
+Wil je er vanuit code tegenaan praten, zet dan in de Developer-tab de lokale server aan. Die spreekt de OpenAI-API op poort 1234, dus elke OpenAI-client werkt zodra je de base URL omzet naar `http://localhost:1234/v1` ([documentatie](https://lmstudio.ai/docs/developer/openai-compat)):
+
+```bash
+curl http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "<model-id zoals LM Studio hem toont>",
+    "messages": [{"role": "user", "content": "Leg quantisatie uit in twee zinnen."}]
+  }'
+```
+
+Zodra dit werkt en je het wilt automatiseren, is [Ollama](https://ollama.com/) de logische volgende stap: één commando, geen GUI nodig, en makkelijk te reproduceren in een README of Dockerfile.
 
 ```bash
 ollama run llama3.2:3b
 ```
 
-Ollama downloadt het model (een paar GB) en zet je in een chat; `/bye` sluit af. Kijk in de [modelbibliotheek](https://ollama.com/library) welke modellen er op dit moment zijn — namen en versies wisselen snel, dus neem het commando hierboven als vorm en niet als voorschrift.
+Dat downloadt het model en zet je in een chat (`/bye` sluit af), met een OpenAI-compatibele server op poort 11434. Kijk in de [modelbibliotheek](https://ollama.com/library) welke modellen er op dit moment zijn — namen en versies wisselen snel, dus neem het commando hierboven als vorm en niet als voorschrift.
 
-Zodra Ollama draait, staat er ook een server op `http://localhost:11434` met een OpenAI-compatibele API. Je kunt er dus direct vanuit code tegenaan praten:
-
-```bash
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama3.2:3b",
-  "prompt": "Leg quantisatie uit in twee zinnen.",
-  "stream": false
-}'
-```
-
-Werkt dit? Dan gaat de rest van dit document vooral over kiezen: groter, sneller, of iets anders dan tekst. Werkt het niet, of is het tergend traag, spring dan naar "Veelvoorkomende problemen" onderaan.
+Loopt de installatie of de eerste run stuk, spring dan naar "Veelvoorkomende problemen" onderaan.
 
 ## Past het model wel op jouw hardware?
 
@@ -65,8 +70,8 @@ Bijna alles komt uiteindelijk van [Hugging Face](https://huggingface.co/models).
 
 ### Tekst (LLM's)
 
-- **[Ollama](https://ollama.com/)** — standaardkeuze. Eén commando, modelbibliotheek ingebouwd, draait als server met een OpenAI-compatibele API op poort 11434. Regelt CPU/GPU-detectie automatisch. Windows/Mac/Linux.
-- **[LM Studio](https://lmstudio.ai/)** — GUI-variant, fijn voor wie op de CLI vastloopt. Je stelt GPU-offload en contextlengte in met schuifjes en ziet meteen wat er gebeurt als een model niet in het geheugen past. Kan ook als server draaien.
+- **[LM Studio](https://lmstudio.ai/)** — de makkelijkste start. Gewone installer, ingebouwde modelbrowser die aangeeft wat op jouw machine past, en GPU-offload en contextlengte als schuifjes in beeld. Kan ook als server draaien (poort 1234, OpenAI-compatibel). Nadeel: het is een closed-source applicatie, dus check de gebruiksvoorwaarden als je het buiten je studie inzet.
+- **[Ollama](https://ollama.com/)** — de keuze zodra je gaat scripten. Eén commando, modelbibliotheek ingebouwd, draait als server met een OpenAI-compatibele API op poort 11434, en regelt CPU/GPU-detectie automatisch. Makkelijker te reproduceren op andermans machine dan een reeks klikinstructies, en werkt headless (server, Docker). Windows/Mac/Linux, MIT-licentie.
 - **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — waar Ollama en LM Studio onder de motorkap op leunen. Interessant als je wilt begrijpen wat quantisatie precies doet, of als je op ongebruikelijke hardware zit (bijvoorbeeld een oudere AMD-kaart via Vulkan) en de kant-en-klare tools het laten afweten.
 - **[MLX](https://github.com/ml-explore/mlx)** (met het `mlx-lm`-pakket) — heb je een Mac met Apple Silicon, dan haal je hiermee merkbaar meer snelheid dan via de generieke route. Modellen staan als `mlx-community`-varianten op Hugging Face.
 
@@ -93,7 +98,7 @@ Weet je niet waar je moet beginnen: **MediaPipe** als je iets met mensen doet (h
 Dit zijn de dingen waar je met hoge waarschijnlijkheid tegenaan loopt — en de snelste oplossing.
 
 - **"Out of memory" / het model crasht bij het laden.** Het model, of de gekozen contextlengte, past niet in je VRAM/RAM. Oplossing: kies een kleinere quantisatie (bijvoorbeeld Q4 in plaats van Q8), een kleiner model, of een kortere context. Draai je iets anders naast je model (een browser met veertig tabbladen telt mee), sluit dat eerst.
-- **Het model draait, maar bizar traag.** Grote kans dat het grotendeels op de CPU draait in plaats van de GPU. Check dit expliciet: bij Ollama laat `ollama ps` zien hoeveel procent op de GPU zit, bij LM Studio staat het in de UI. Vaak is de oorzaak een ontbrekende of verouderde GPU-driver, of een model dat net te groot is waardoor er maar een paar lagen op de GPU passen.
+- **Het model draait, maar bizar traag.** Grote kans dat het grotendeels op de CPU draait in plaats van de GPU. Check dit expliciet: in LM Studio zie je het aantal ge-offloade lagen in de UI, bij Ollama laat `ollama ps` zien hoeveel procent op de GPU zit. Vaak is de oorzaak een ontbrekende of verouderde GPU-driver, of een model dat net te groot is waardoor er maar een paar lagen op de GPU passen.
 - **Dependency-hel in Python.** Deep learning libraries (PyTorch, CUDA-toolkit versies, `bitsandbytes`, `flash-attention`) zijn berucht gevoelig voor exacte versiecombinaties. Gebruik altijd een virtual environment (`venv`, `conda` of `uv`) per project, nooit één globale Python-installatie voor alles. Als iets echt niet wil installeren op Windows: probeer [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install), veel van deze libraries zijn primair voor Linux gebouwd.
 - **CUDA-versie mismatch.** PyTorch- en TensorFlow-builds zijn gekoppeld aan een specifieke CUDA-versie. Een verouderde GPU-driver, of een PyTorch-versie die een nieuwere CUDA verwacht dan je driver levert, geeft cryptische errors. Check je driverversie (`nvidia-smi`) en gebruik de [officiële installatieselector van PyTorch](https://pytorch.org/get-started/locally/), die het juiste commando voor jouw situatie genereert.
 - **AMD op Windows.** ROCm-support op Windows is nog relatief nieuw en dekt niet alle kaarten. Verwacht dat je vaker moet uitwijken naar de Vulkan-backend van llama.cpp, of gewoon CPU, dan bij NVIDIA.
@@ -102,8 +107,11 @@ Dit zijn de dingen waar je met hoge waarschijnlijkheid tegenaan loopt — en de 
 
 ## Vuistregels samengevat
 
-1. Begin met **Ollama** — het regelt GPU/CPU-detectie en quantisatie grotendeels automatisch, zonder dat je met CUDA-versies hoeft te knoeien.
+1. Begin met **LM Studio** — installeren en een model draaien kost een paar klikken, en je ziet direct wat er met je geheugen gebeurt. Stap over op **Ollama** zodra je het wilt scripten of reproduceren; allebei regelen ze GPU/CPU-detectie en quantisatie automatisch, zonder dat je met CUDA-versies hoeft te knoeien.
 2. Check eerst hoeveel VRAM/geheugen je hebt, dan pas welk model je kiest — en reken op wat extra ruimte voor de context.
 3. NVIDIA werkt bijna altijd zonder gedoe; AMD en oudere hardware vragen meer uitzoekwerk.
 4. Twijfel je tussen twee modelgroottes of quantisatieniveaus? Kies de kleinere — die werkt bijna gegarandeerd, en je kunt altijd opschalen.
 5. Een model is andermans bestand op jouw machine: let op formaat, publisher en licentie voordat je het in een project zet.
+
+
+co-authored with Claude Opus 5.0
