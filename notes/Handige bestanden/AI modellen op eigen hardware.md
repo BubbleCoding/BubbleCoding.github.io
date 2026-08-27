@@ -58,7 +58,7 @@ Kortom: heb je een NVIDIA-kaart, dan werkt bijna alles zonder gedoe. Heb je AMD,
 
 ## Waar je je modellen vandaan haalt
 
-Bijna alles komt uiteindelijk van [Hugging Face](https://huggingface.co/models). Dat is geen app store met keuring vooraf: een model is gewoon een bestand dat iemand heeft geüpload. Behandel het zoals je een npm-package van een onbekende zou behandelen.
+Bijna alles komt uiteindelijk van [Hugging Face](https://huggingface.co/models). Dat is geen app store met keuring vooraf: een model is gewoon een bestand dat iemand heeft geüpload.
 
 - **Kies `safetensors` boven `.bin`, `.pt` of `.ckpt` als je de keuze hebt.** Die laatste formaten zijn Python pickles, en het inladen daarvan kan willekeurige code uitvoeren. [`safetensors`](https://huggingface.co/docs/safetensors/index) is puur data en kan dat niet. GGUF-bestanden (voor llama.cpp/Ollama) zijn in dat opzicht ook data-only.
 - **Kijk wie het gepubliceerd heeft.** Een quantisatie van een bekende community-account is iets anders dan een naamloze upload van vorige week met drie downloads.
