@@ -5,7 +5,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "pdf",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
   },
   {
     "title": "Hoe - Feedback en hulp",
@@ -13,7 +13,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
   },
   {
     "title": "Wat is een leeruitkomst",
@@ -21,7 +21,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
   },
   {
     "title": "feedback-vragen",
@@ -29,7 +29,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "pdf",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
   },
   {
     "title": "markdown-naar-pdf",
@@ -37,7 +37,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
   },
   {
     "title": "Handige links",
@@ -45,6 +45,14 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:45:01.292Z"
+    "lastModified": "2026-08-27T08:46:01.611Z"
+  },
+  {
+    "title": "AI modellen op eigen hardware",
+    "path": "notes/Handige bestanden/AI modellen op eigen hardware.md",
+    "folder": "Handige bestanden",
+    "tags": [],
+    "fileType": "note",
+    "lastModified": "2026-08-27T08:46:16.210Z"
   }
 ]
