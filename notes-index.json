@@ -5,7 +5,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "pdf",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "Hoe - Feedback en hulp",
@@ -13,7 +13,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "Wat is een leeruitkomst",
@@ -21,7 +21,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "feedback-vragen",
@@ -29,7 +29,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "pdf",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "markdown-naar-pdf",
@@ -37,7 +37,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "Handige links",
@@ -45,7 +45,7 @@
     "folder": "Handige bestanden",
     "tags": [],
     "fileType": "note",
-    "lastModified": "2026-08-27T08:56:37.082Z"
+    "lastModified": "2026-08-27T09:02:10.552Z"
   },
   {
     "title": "AI modellen op eigen hardware",
@@ -54,5 +54,13 @@
     "tags": [],
     "fileType": "note",
     "lastModified": "2026-08-27T09:02:12.031Z"
+  },
+  {
+    "title": "De klas als dataset",
+    "path": "notes/Courses/Dark Tech/De klas als dataset.md",
+    "folder": "Courses/Dark Tech",
+    "tags": [],
+    "fileType": "note",
+    "lastModified": "2026-09-01T12:09:32.371Z"
   }
 ]
