@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paris Noël 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Mountains+of+Christmas:wght@700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: full-screen night map of one day; gold photo pins linked by arrows; a filmstrip of stops along the bottom; tapping opens the stop's card. Theme: a Paris Christmas night — fir green, berry red, candle gold, falling snow. */
+:root{
+  --bg:#0f2a22; --bg-deep:#0a1e18; --paper:#fffaf0; --ink:#1d2a24; --muted:#5f6b63; --line:#e8dcc4;
+  --on-dark:#f6efe0; --on-dark-muted:#b9c9bd;
+  --red:#c8283b; --red-deep:#8e1626; --gold:#e9b949; --gold-deep:#a87a12; --green:#1f6b4a;
+  --route:#e9b949; --night:#ff6b6b;
+  --display:"Mountains of Christmas", "Gloock", Georgia, serif;
+  --serif:"Gloock", Georgia, serif;
+  --body:"Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg-deep);color:var(--on-dark);font-family:var(--body);display:flex;flex-direction:column;overflow:hidden}
+
+/* Header with a string of lights */
+header{position:relative;display:flex;gap:14px;align-items:center;
+  padding:14px max(16px,env(safe-area-inset-right)) 22px max(16px,env(safe-area-inset-left));padding-top:max(14px,env(safe-area-inset-top));
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);z-index:2;
+  border-bottom:3px solid var(--red)}
+.plaque{background:var(--red);color:#fff;border:3px solid var(--gold);outline:2px solid var(--red);border-radius:8px;
+  padding:4px 10px;text-align:center;min-width:76px;flex:none;box-shadow:0 0 18px rgba(233,185,73,.35)}
+.plaque .arr{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.plaque .d{display:block;font-family:var(--serif);font-size:26px;line-height:1}
+.plaque .wd{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(24px,4.4vw,38px);margin:0;line-height:1.05;text-wrap:balance;color:var(--gold);
+  text-shadow:0 0 14px rgba(233,185,73,.35)}
+header p{margin:4px 0 0;color:var(--on-dark-muted);font-size:14px}
+.titles{min-width:0}
+.lights{position:absolute;left:0;right:0;bottom:-14px;height:24px;pointer-events:none;overflow:hidden}
+.lights svg{width:100%;height:24px;display:block}
+.bulb{animation:glow 1.6s ease-in-out infinite}
+.bulb:nth-child(3n){animation-delay:.5s}.bulb:nth-child(3n+1){animation-delay:1s}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Map */
+#mapwrap{position:relative;flex:1;min-height:0;isolation:isolate;z-index:1}
+#map{position:absolute;inset:0;background:var(--bg-deep)}
+#snow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:500}
+.leaflet-container{font-family:var(--body)}
+.leaflet-control-attribution{background:rgba(10,30,24,.7)!important;color:var(--on-dark-muted)!important}
+.leaflet-control-attribution a{color:var(--on-dark)!important}
+.pin{position:relative;width:58px;height:58px;border-radius:50%;border:3px solid var(--gold);
+  box-shadow:0 0 0 3px var(--red-deep),0 0 22px rgba(233,185,73,.55);
+  background:#334 center/cover no-repeat;cursor:pointer;transition:transform .15s}
+.pin.night{border-color:#fff;box-shadow:0 0 0 3px var(--red),0 0 26px rgba(255,255,255,.55)}
+.pin:hover,.pin.active{transform:scale(1.15)}
+.pin .n{position:absolute;top:-8px;left:-8px;width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;
+  font:700 13px/22px var(--body);text-align:center;border:2px solid var(--gold)}
+.pin .t{position:absolute;top:62px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--paper);color:var(--ink);
+  font:500 11px var(--mono);padding:1px 6px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.leg{background:var(--bg);color:var(--on-dark);font:600 11px var(--body);padding:2px 7px;border-radius:99px;border:1px solid var(--gold-deep);white-space:nowrap}
+
+/* Filmstrip */
+.strip{display:flex;gap:12px;overflow-x:auto;padding:12px max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  background:var(--bg);border-top:3px solid var(--red);z-index:2;scroll-snap-type:x proximity}
+.frame{flex:none;width:132px;border:0;padding:0;background:var(--paper);border-radius:6px;overflow:hidden;text-align:left;color:var(--ink);
+  cursor:pointer;box-shadow:0 0 0 2px var(--gold-deep),0 4px 12px rgba(0,0,0,.35);scroll-snap-align:start;font-family:var(--body);
+  transform:rotate(-1.2deg);transition:transform .15s}
+.frame:nth-child(2n){transform:rotate(1.2deg)}
+.frame:hover,.frame:focus-visible,.frame.active{transform:rotate(0) translateY(-3px);box-shadow:0 0 0 3px var(--gold),0 6px 16px rgba(0,0,0,.45);outline:none}
+.frame img{width:100%;height:72px;object-fit:cover;display:block}
+.frame span{display:block;padding:5px 8px 7px;font-size:12px;line-height:1.25}
+.frame b{font-family:var(--mono);font-weight:500;font-size:11px;color:var(--red-deep);display:block}
+
+/* Card: a Christmas card */
+.scrim{position:fixed;inset:0;background:rgba(5,15,12,.6);z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.card{position:relative;background:var(--paper);color:var(--ink);width:min(520px,100%);max-height:calc(100% - 16px);overflow:auto;border-radius:14px;
+  border:6px solid var(--red);outline:2px solid var(--gold);outline-offset:-12px;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);margin-bottom:max(0px,env(safe-area-inset-bottom))}
+@media (min-width:700px){.scrim{align-items:center}}
+.card figure{margin:0;position:relative}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--line)}
+.card figcaption{position:absolute;right:10px;bottom:6px;font-size:10px;color:#fff;text-shadow:0 1px 3px #000}
+.card figcaption a{color:#fff}
+.card .close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:2px solid var(--gold);background:var(--red);color:#fff;font-size:20px;cursor:pointer}
+.card .body{padding:16px 20px 20px;display:grid;gap:10px;
+  background:radial-gradient(circle at 92% 8%,rgba(200,40,59,.07) 0 40px,transparent 41px)}
+.card .meta{display:flex;gap:10px;align-items:center;font-family:var(--mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.card .num{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font:700 13px/22px var(--body);text-align:center;border:2px solid var(--gold)}
+.card h2{font-family:var(--display);font-weight:700;font-size:32px;margin:0;line-height:1.05;color:var(--red-deep)}
+.card p{margin:0;line-height:1.55}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.tag.book{background:var(--red);color:#fff}
+.tag.market{background:var(--green);color:#fff}
+.tip{background:#f3ead6;border-left:4px solid var(--green);border-radius:6px;padding:8px 10px;font-size:14px;color:var(--ink)}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);text-decoration:none;
+  color:var(--ink);font-weight:600;font-size:14px;background:#fff;cursor:pointer;font-family:var(--body)}
+.btn:hover,.btn:focus-visible{border-color:var(--red);outline:none}
+.nav{display:flex;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding-top:12px}
+.nav .next{margin-left:auto;background:var(--green);color:#fff;border-color:var(--green)}
+.btn[disabled]{opacity:.4;cursor:default}
+@media (prefers-reduced-motion:reduce){.pin,.frame{transition:none}.bulb{animation:none}}
+
+/* Day tabs + countdown */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:16px max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left));background:var(--bg-deep);z-index:2;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:flex;flex-direction:column;align-items:center;min-width:48px;padding:4px 8px;border-radius:8px;border:1px solid transparent;
+  background:transparent;color:var(--on-dark-muted);font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.tab b{font:400 20px/1.1 var(--serif);color:var(--on-dark);letter-spacing:0}
+.tab:hover,.tab:focus-visible{border-color:var(--gold-deep);outline:none}
+.tab[aria-selected="true"]{background:var(--red);border-color:var(--gold);color:#fff}
+.tab[aria-selected="true"] b{color:#fff}
+.count{margin-left:auto;flex:none;text-align:right;font:500 11px var(--mono);color:var(--on-dark-muted);letter-spacing:.06em;text-transform:uppercase}
+.count b{display:block;font:400 26px/1 var(--serif);color:var(--gold);letter-spacing:0}
+.pin.icon{display:grid;place-items:center;font-size:26px;background:radial-gradient(circle at 35% 30%,#e04a5c,var(--red-deep))}
+.frame .ico{height:72px;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle at 35% 30%,#e04a5c,var(--red-deep))}
+.card .ico{aspect-ratio:16/7;display:grid;place-items:center;font-size:64px;background:radial-gradient(circle at 35% 30%,#e04a5c,var(--red-deep))}
+.tag.star{background:var(--gold);color:var(--ink)}
+@media (max-width:520px){.count{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="plaque" id="plaque"></div>
+  <div class="titles"><h1 id="title"></h1><p id="sub"></p></div>
+  <div class="count" id="count"></div>
+  <div class="lights" aria-hidden="true"><svg viewBox="0 0 2000 24" preserveAspectRatio="xMinYMid slice"><path d="M0 8 Q 20 2 40 8 Q 60 2 80 8 Q 100 2 120 8 Q 140 2 160 8 Q 180 2 200 8 Q 220 2 240 8 Q 260 2 280 8 Q 300 2 320 8 Q 340 2 360 8 Q 380 2 400 8 Q 420 2 440 8 Q 460 2 480 8 Q 500 2 520 8 Q 540 2 560 8 Q 580 2 600 8 Q 620 2 640 8 Q 660 2 680 8 Q 700 2 720 8 Q 740 2 760 8 Q 780 2 800 8 Q 820 2 840 8 Q 860 2 880 8 Q 900 2 920 8 Q 940 2 960 8 Q 980 2 1000 8 Q 1020 2 1040 8 Q 1060 2 1080 8 Q 1100 2 1120 8 Q 1140 2 1160 8 Q 1180 2 1200 8 Q 1220 2 1240 8 Q 1260 2 1280 8 Q 1300 2 1320 8 Q 1340 2 1360 8 Q 1380 2 1400 8 Q 1420 2 1440 8 Q 1460 2 1480 8 Q 1500 2 1520 8 Q 1540 2 1560 8 Q 1580 2 1600 8 Q 1620 2 1640 8 Q 1660 2 1680 8 Q 1700 2 1720 8 Q 1740 2 1760 8 Q 1780 2 1800 8 Q 1820 2 1840 8 Q 1860 2 1880 8 Q 1900 2 1920 8 Q 1940 2 1960 8 Q 1980 2 2000 8" stroke="#0a1e18" stroke-width="1.5" fill="none"/><circle class="bulb" cx="20" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="60" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="100" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="140" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="180" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="220" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="260" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="300" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="340" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="380" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="420" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="460" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="500" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="540" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="580" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="620" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="660" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="700" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="740" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="780" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="820" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="860" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="900" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="940" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="980" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1020" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1060" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1100" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1140" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1180" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1220" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1260" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1300" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1340" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1380" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1420" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1460" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1500" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1540" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1580" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1620" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1660" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1700" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1740" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1780" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1820" cy="18" r="4.5" fill="#e9b949"/><circle class="bulb" cx="1860" cy="14" r="4.5" fill="#2fa56b"/><circle class="bulb" cx="1900" cy="18" r="4.5" fill="#5aa9ff"/><circle class="bulb" cx="1940" cy="14" r="4.5" fill="#c8283b"/><circle class="bulb" cx="1980" cy="18" r="4.5" fill="#e9b949"/></svg></div>
+</header>
+<nav class="tabs" id="tabs" role="tablist" aria-label="Days"></nav>
+<div id="mapwrap"><div id="map" role="region" aria-label="Map of the day"></div><canvas id="snow" aria-hidden="true"></canvas></div>
+<nav class="strip" id="strip" aria-label="Stops"></nav>
+<div class="scrim" id="scrim" hidden></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
+<script>
+const C='https://thumb.wikimedia.org/wikipedia/commons/thumb/';
+const HOME=[48.8711,2.3822];
+const ph=(path,by,lic,file)=>({img:C+path,credit:[by,lic,file]});
+const DAYS=[
+{id:'d23',date:'23',wd:'Mer',m:'déc',arr:'20e',title:'Arrival & Belleville',sub:'An easy first day on foot, ending with sunset over Paris and steak frites.',stops:[
+ {time:'~12:00',name:'Drop the bags',ll:HOME,icon:'🧳',text:'Arrive and leave the luggage with the host, or in a storage locker near Belleville metro if early drop isn\'t possible.',tip:'Check-in is from 15:00.',leg:'5 min walk'},
+ {time:'12:30',name:'Lunch on rue de Belleville',ll:[48.8723,2.3787],text:'Paris\'s other Chinatown. Dumplings, pho, bánh mì: pick whichever place has the longest queue of locals.',q:'Rue de Belleville, Paris',...ph('c/c4/Rue_de_Belleville_June_2010.jpg/960px-Rue_de_Belleville_June_2010.jpg','Aleksandr Zykov','CC BY-SA 2.0','Rue_de_Belleville_June_2010.jpg'),leg:'2 min walk'},
+ {time:'13:30',name:'Rue Dénoyez',ll:[48.8714,2.3779],text:'A short street where every wall, shutter and door is covered in street art, repainted constantly.',q:'Rue Dénoyez, Paris',...ph('f/f1/Paris_Belleville_rue_Denoyez.jpg/960px-Paris_Belleville_rue_Denoyez.jpg','Myrabella','CC BY-SA 4.0','Paris_Belleville_rue_Denoyez.jpg'),leg:'8 min walk'},
+ {time:'15:00',name:'Check in',ll:HOME,icon:'🏠',text:'Unpack, rest, warm up.',leg:'4 min walk'},
+ {time:'16:15',name:'Belleville lookout',ll:[48.8713,2.3846],night:true,star:true,text:'One of the best free views in Paris. Sunset is around 16:55; stay until the city lights come on and the Eiffel Tower starts to glow.',q:'Belvédère de Belleville, Paris',...ph('c/cf/Belv%C3%A9d%C3%A8re_de_Belleville_%40_Parc_de_Belleville_%40_Paris_20_%2825737655626%29.jpg/960px-Belv%C3%A9d%C3%A8re_de_Belleville_%40_Parc_de_Belleville_%40_Paris_20_%2825737655626%29.jpg','Guilhem Vellut','CC BY 2.0','Belvédère_de_Belleville_@_Parc_de_Belleville_@_Paris_20_(25737655626).jpg'),tip:'Drinks at Moncœur Belleville, the café right at the lookout.',leg:'10 min walk'},
+ {time:'19:00',name:'Les Triplettes de Belleville',ll:[48.8689,2.3800],night:true,tags:['book'],text:'Relaxed bar-brasserie on the boulevard: pints at the bar, steak frites on the plate. A no-thinking first night.',tip:'Book a table and ask about steak frites when you do.',q:'Les Triplettes de Belleville, 102 Boulevard de Belleville, Paris',...ph('5/5f/P1310591_Paris_XIX_bd_de_Belleville_rwk.jpg/960px-P1310591_Paris_XIX_bd_de_Belleville_rwk.jpg','Mbzt','CC BY-SA 4.0','P1310591_Paris_XIX_bd_de_Belleville_rwk.jpg')}
+]},
+{id:'d24',date:'24',wd:'Jeu',m:'déc',arr:'1er · 4e · 6e',title:'Île de la Cité & Christmas Eve',sub:'Stained glass, the restored cathedral, the first Christmas market and a Left Bank lunch. Shorter hours today.',stops:[
+ {time:'10:30',name:'Sainte-Chapelle',ll:[48.8554,2.3450],tags:['book'],text:'A 13th-century chapel that is almost entirely stained glass: 1,113 scenes in fifteen windows. On a sunny winter morning it glows.',tip:'Timed ticket. Look out for its Christmas classical concerts. Metro: line 11 → Châtelet, then walk.',q:'Sainte-Chapelle, Paris',...ph('3/3f/Santa_Capilla%2C_Par%C3%ADs%2C_Francia%2C_2022-11-01%2C_DD_80-82_HDR.jpg/960px-Santa_Capilla%2C_Par%C3%ADs%2C_Francia%2C_2022-11-01%2C_DD_80-82_HDR.jpg','Diego Delso','CC BY-SA 4.0','Santa_Capilla,_París,_Francia,_2022-11-01,_DD_80-82_HDR.jpg'),leg:'5 min walk'},
+ {time:'11:30',name:'Notre-Dame de Paris',ll:[48.8530,2.3499],text:'Reopened in December 2024 after the fire, with its stone washed back to pale cream. Free to enter; the queue moves fast.',q:'Cathédrale Notre-Dame de Paris',...ph('f/f2/Paris_-_Notre-Dame_de_Paris_-_west_facade_at_night_in_Christmas_time.jpg/960px-Paris_-_Notre-Dame_de_Paris_-_west_facade_at_night_in_Christmas_time.jpg','Roman Eisele','CC BY-SA 4.0','Paris_-_Notre-Dame_de_Paris_-_west_facade_at_night_in_Christmas_time.jpg'),leg:'3 min walk'},
+ {time:'12:15',name:'Notre-Dame Christmas market',ll:[48.8523,2.3473],tags:['market'],text:'Market no. 1. Small and very French: crafts and regional food in Square René Viviani, with the cathedral right across the river.',tip:'It closes for the season on 27 December.',q:'Square René Viviani, Paris',...ph('d/d6/Square_Ren%C3%A9-Viviani-Montebello_depuis_la_tour_sud_de_Notre-Dame_de_Paris.jpg/960px-Square_Ren%C3%A9-Viviani-Montebello_depuis_la_tour_sud_de_Notre-Dame_de_Paris.jpg','A.Schneider83','CC BY-SA 3.0','Square_René-Viviani-Montebello_depuis_la_tour_sud_de_Notre-Dame_de_Paris.jpg'),leg:'5 min walk'},
+ {time:'13:00',name:'Along the quays',ll:[48.8536,2.3420],text:'Past the bouquinistes, the green book-stall boxes clamped to the river wall since the 1500s.',q:'Quai des Grands Augustins, Paris',...ph('c/c2/Paris_75005_Quai_de_Montebello_Bouquinistes_20071014.jpg/960px-Paris_75005_Quai_de_Montebello_Bouquinistes_20071014.jpg','Benh LIEU SONG','CC BY-SA 3.0','Paris_75005_Quai_de_Montebello_Bouquinistes_20071014.jpg'),leg:'12 min walk'},
+ {time:'13:30',name:'Lunch at Les Deux Magots',ll:[48.8540,2.3333],text:'The classic Saint-Germain café where Sartre and de Beauvoir wrote. Or La Tour de Nesle nearby for a brasserie lunch; both are on your list.',q:'Les Deux Magots, Paris',...ph('c/c8/Les_Deux_Magots%2C_25_September_2019.jpg/960px-Les_Deux_Magots%2C_25_September_2019.jpg','Cheng-en Cheng','CC BY-SA 2.0','Les_Deux_Magots,_25_September_2019.jpg'),leg:'8 min walk'},
+ {time:'15:00',name:'Musée d\'histoire de la médecine',ll:[48.8507,2.3406],text:'Optional. A single grand room of old surgical instruments, anatomy models and curiosities inside the medical faculty.',tip:'Check it\'s open on Christmas Eve. Then home to rest before the evening.',q:'Musée d\'histoire de la médecine, Paris',...ph('8/81/Mus%C3%A9e_d%27histoire_de_la_m%C3%A9decine_%28Paris%29_03.jpg/960px-Mus%C3%A9e_d%27histoire_de_la_m%C3%A9decine_%28Paris%29_03.jpg','Emile Barret','CC BY-SA 4.0','Musée_d\'histoire_de_la_médecine_(Paris)_03.jpg')}
+]},
+{id:'d25',date:'25',wd:'Ven',m:'déc',arr:'Marne-la-Vallée',title:'Christmas at Disneyland',sub:'Most of Paris closes on Christmas Day, so we spend it at the parks.',stops:[
+ {time:'08:30',name:'RER A to the parks',ll:[48.8483,2.3958],icon:'🚆',text:'Line 11 or 2 to Nation, then RER A east to Marne-la-Vallée–Chessy, the last stop. About an hour door to door.',tip:'Check Christmas Day train times the evening before.',q:'Nation, Paris',...ph('b/bb/MI09_arrivant_en_gare_de_La_D%C3%A9fense_RER_A_%C3%A0_la_voie_2_%281%29.jpg/960px-MI09_arrivant_en_gare_de_La_D%C3%A9fense_RER_A_%C3%A0_la_voie_2_%281%29.jpg','Remontees','CC BY-SA 4.0','MI09_arrivant_en_gare_de_La_Défense_RER_A_à_la_voie_2_(1).jpg'),leg:'RER A, ~40 min'},
+ {time:'09:30',name:'Disneyland Park',ll:[48.8722,2.7758],tags:['book'],text:'The parks in full Christmas dress: the giant tree in Town Square, decorated Main Street and seasonal shows.',tip:'Buy tickets in advance; check whether a park reservation is needed.',q:'Disneyland Paris',...ph('f/f1/Disneyland_Park_05%2C_Paris_22_August_2013.jpg/960px-Disneyland_Park_05%2C_Paris_22_August_2013.jpg','flightlog','CC BY 2.0','Disneyland_Park_05,_Paris_22_August_2013.jpg')},
+ {time:'Lunch',name:'Captain Jack\'s',ll:[48.8708,2.7738],tags:['book'],text:'Lunch by candlelight inside the Pirates of the Caribbean ride, with boats drifting past in the dark. The most atmospheric table in the park.',tip:'Book as soon as the booking window opens; ask for a waterside table.',q:'Captain Jack\'s Restaurant des Pirates, Disneyland Paris',icon:'🏴‍☠️'},
+ {time:'Evening',name:'Disney Village & home',ll:[48.8697,2.7813],night:true,text:'Walk out through Disney Village under the lights, then RER A back to Nation.',q:'Disney Village, Chessy',icon:'✨'}
+]},
+{id:'d26',date:'26',wd:'Sam',m:'déc',arr:'6e · 7e',title:'Musée d\'Orsay & the Eiffel Tower',sub:'Two must-dos on the Left Bank, linked by a walk along the Seine, with the top of the tower timed for sunset.',stops:[
+ {time:'10:00',name:'Musée d\'Orsay',ll:[48.8600,2.3266],star:true,tags:['book'],text:'A Beaux-Arts railway station turned museum. The Impressionists are on the 5th floor, next to the giant clock window looking out over the Seine to the Louvre.',tip:'Timed ticket. Don\'t miss Caillebotte\'s Rooftops in the Snow.',q:'Musée d\'Orsay, Paris',...ph('0/01/Paris_-_Mus%C3%A9e_d%27Orsay_8369.jpg/960px-Paris_-_Mus%C3%A9e_d%27Orsay_8369.jpg','Phyrexian','CC BY-SA 4.0','Paris_-_Musée_d\'Orsay_8369.jpg'),leg:'10 min walk'},
+ {time:'12:30',name:'Lunch in Saint-Germain',ll:[48.8542,2.3326],text:'Café de Flore or one of the bistros on rue du Bac.',q:'Café de Flore, Paris',...ph('6/69/Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg/960px-Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg','Celette','CC BY-SA 4.0','Café_de_Flore,_172_boulevard_Saint-Germain,_Paris_6e.jpg'),leg:'25 min walk'},
+ {time:'14:00',name:'Pont Alexandre III',ll:[48.8638,2.3136],text:'The most ornate bridge in Paris, gilded statues and all. Follow the river west from here.',q:'Pont Alexandre III, Paris',...ph('d/de/Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg/960px-Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg','Getfunky Paris','CC BY 2.0','Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg'),leg:'25 min walk'},
+ {time:'15:30',name:'Eiffel Tower',ll:[48.8584,2.2945],star:true,tags:['book'],text:'Up to the summit for sunset (~16:55), then watch the whole city switch on beneath you.',tip:'Book a ~15:30 summit slot as soon as sales open; holiday dates sell out.',q:'Tour Eiffel, Paris',img:'https://upload.wikimedia.org/wikipedia/commons/c/c2/Eiffel_Tower_in_the_snow%2C_26_November_2005.jpg',credit:['Steven Byles','CC BY-SA 2.0','Eiffel_Tower_in_the_snow,_26_November_2005.jpg'],leg:'5 min walk'},
+ {time:'17:30',name:'Eiffel Tower Christmas market',ll:[48.8556,2.2985],night:true,tags:['market'],text:'Bonus market under the tower: chalets, mulled wine and the most photogenic backdrop in town.',q:'Champ de Mars, Paris',...ph('f/f6/Le_march%C3%A9_de_No%C3%ABl_europ%C3%A9en_au_Trocad%C3%A9ro_%28Paris%29_%284174451343%29.jpg/960px-Le_march%C3%A9_de_No%C3%ABl_europ%C3%A9en_au_Trocad%C3%A9ro_%28Paris%29_%284174451343%29.jpg','Jean-Pierre Dalbéra','CC BY 2.0','Le_marché_de_Noël_européen_au_Trocadéro_(Paris)_(4174451343).jpg'),leg:'8 min walk'},
+ {time:'18:00',name:'Seine cruise',ll:[48.8606,2.2930],night:true,text:'Optional. An hour on the river past every lit-up monument, from the foot of the tower.',q:'Bateaux Parisiens, Port de la Bourdonnais, Paris',...ph('e/e5/Bateaux_Mouches_Paris_2011.jpg/960px-Bateaux_Mouches_Paris_2011.jpg','Daniel Stockman','CC BY-SA 2.0','Bateaux_Mouches_Paris_2011.jpg'),leg:'6 min walk'},
+ {time:'19:00',name:'Trocadéro',ll:[48.8616,2.2893],night:true,text:'The postcard view back across the river. On the hour the tower sparkles for five minutes.',tip:'Home: line 6 → line 2 from Trocadéro, ~40 min.',q:'Trocadéro, Paris',...ph('a/a6/Eiffel_Tower_at_night%2C_Paris_October_2014.jpg/960px-Eiffel_Tower_at_night%2C_Paris_October_2014.jpg','Falcon® Photography','CC BY-SA 2.0','Eiffel_Tower_at_night,_Paris_October_2014.jpg')}
+]},
+{id:'d27',date:'27',wd:'Dim',m:'déc',arr:'3e · 4e · 19e',title:'The Marais, then fondue',sub:'Sunday is when the Marais is at its best. Dinner is cheese fondue in a chalet at La Villette.',stops:[
+ {time:'10:00',name:'Musée Picasso',ll:[48.8598,2.3624],tags:['book'],text:'The world\'s largest Picasso collection, in a 17th-century salt-tax collector\'s mansion.',tip:'Timed ticket; allow about two hours. Metro: line 11 → Rambuteau.',q:'Musée National Picasso-Paris',...ph('2/2d/Mus%C3%A9e_Picasso_Paris_-_H%C3%B4tel_Sal%C3%A9_-_Mai_2015_02.JPG/960px-Mus%C3%A9e_Picasso_Paris_-_H%C3%B4tel_Sal%C3%A9_-_Mai_2015_02.JPG','Arthur Crbz','CC BY-SA 4.0','Musée_Picasso_Paris_-_Hôtel_Salé_-_Mai_2015_02.JPG'),leg:'5 min walk'},
+ {time:'12:00',name:'Rue Vieille-du-Temple',ll:[48.8590,2.3592],text:'The Marais\'s main shopping street, with Christmas windows and old hôtels particuliers.',q:'Rue Vieille du Temple, Paris',...ph('5/58/47_Rue_Vieille-du-Temple%2C_Paris_%2801%29.jpg/960px-47_Rue_Vieille-du-Temple%2C_Paris_%2801%29.jpg','Neoclassicism Enthusiast','CC BY-SA 4.0','47_Rue_Vieille-du-Temple,_Paris_(01).jpg'),leg:'3 min walk'},
+ {time:'12:30',name:'L\'As du Fallafel',ll:[48.8573,2.3590],text:'The famous falafel of rue des Rosiers. The queue looks scary but moves fast; takeaway is quicker still.',q:'L\'As du Fallafel, Paris',...ph('3/31/L%27As_du_Fallafel%2C_Jewish_Quarter%2C_Paris_2015.jpg/960px-L%27As_du_Fallafel%2C_Jewish_Quarter%2C_Paris_2015.jpg','Ed Ogle','CC BY 2.0','L\'As_du_Fallafel,_Jewish_Quarter,_Paris_2015.jpg'),leg:'4 min walk'},
+ {time:'13:30',name:'Shopping loop',ll:[48.8580,2.3548],text:'Musashi Japan knives, the jewellery ateliers (Coutumes, Pierre Caron, Atelier Fabien Ajzenberg, Jocelyne Aubree, Bernard Sylvain), Rare Vintage, La Petite Épicerie, Vin et Whisky.',tip:'Keep the Google Maps list open; the shops are scattered.',q:'Musashi Japan Blue Sainte-Croix, Paris',...ph('d/d6/Rue_Sainte-Croix-de-la-Bretonnerie_and_Rue_Aubriot%2C_Paris_24_August_2013.jpg/960px-Rue_Sainte-Croix-de-la-Bretonnerie_and_Rue_Aubriot%2C_Paris_24_August_2013.jpg','flightlog','CC BY 2.0','Rue_Sainte-Croix-de-la-Bretonnerie_and_Rue_Aubriot,_Paris_24_August_2013.jpg'),leg:'6 min walk'},
+ {time:'15:30',name:'MAHJ or the Archives',ll:[48.8611,2.3555],text:'Pick one: the Museum of Jewish Art and History in the Hôtel de Saint-Aignan, or the Archives Nationales in the Hôtel de Soubise.',q:'Musée d\'Art et d\'Histoire du Judaïsme, Paris',...ph('6/67/71_rue_du_Temple%2C_H%C3%B4tel_de_Saint-Aignan%2C_3%C3%A8me_arrondissement%2C_Paris._PH19249.jpg/960px-71_rue_du_Temple%2C_H%C3%B4tel_de_Saint-Aignan%2C_3%C3%A8me_arrondissement%2C_Paris._PH19249.jpg','Charles Lansiaux','CC0','71_rue_du_Temple,_Hôtel_de_Saint-Aignan,_3ème_arrondissement,_Paris._PH19249.jpg'),leg:'15 min walk'},
+ {time:'16:30',name:'Place des Vosges',ll:[48.8556,2.3655],night:true,text:'The oldest planned square in Paris. Eat your Aux Merveilleux de Fred meringue cake under the arcades.',q:'Place des Vosges, Paris',...ph('6/67/Place_des_Vosges_covered_in_snow_%285246429545%29.jpg/960px-Place_des_Vosges_covered_in_snow_%285246429545%29.jpg','Paris-Sharing','CC BY 2.0','Place_des_Vosges_covered_in_snow_(5246429545).jpg'),leg:'12 min walk'},
+ {time:'17:30',name:'Candelaria',ll:[48.8628,2.3637],night:true,text:'A tiny taco counter; push through the unmarked door at the back into one of the best cocktail bars in Paris.',tip:'Walk-in only; early evening is easiest.',q:'Candelaria, 52 Rue de Saintonge, Paris',...ph('3/35/Paris_rue_de_saintonge.jpg/960px-Paris_rue_de_saintonge.jpg','Ralf.treinen','CC BY-SA 3.0','Paris_rue_de_saintonge.jpg'),leg:'Metro 8 + 5, ~20 min'},
+ {time:'19:15',name:'Fondue at Noël La Villette',ll:[48.8898,2.3918],night:true,tags:['market','book'],text:'Market no. 5: a Swiss Christmas village with a Ferris wheel and ice rink. Dinner is cheese fondue in the Zurich chalet.',tip:'2026 dates not announced yet; last year it ran until 28 Dec. Home: line 5 → line 2, ~20 min.',q:'Parc de la Villette, Paris',...ph('9/9c/Grande_halle_de_la_Villette%2C_minuit%2C_2026.jpg/960px-Grande_halle_de_la_Villette%2C_minuit%2C_2026.jpg','Iñaki LL','CC BY-SA 3.0','Grande_halle_de_la_Villette,_minuit,_2026.jpg')}
+]},
+{id:'d28',date:'28',wd:'Lun',m:'déc',arr:'1er · 8e',title:'Louvre, markets & the Champs-Élysées',sub:'One long walk west, from the Louvre to the top of the Arc de Triomphe.',stops:[
+ {time:'10:00',name:'Louvre',ll:[48.8611,2.3358],tags:['book'],text:'Two or three hours of highlights is plenty: the Winged Victory, the Italian galleries, the Napoleon III apartments.',tip:'Timed ticket. Use the Carrousel entrance if the pyramid queue is long. Metro: line 11 → Châtelet, line 1 → Palais-Royal.',q:'Musée du Louvre, Paris',...ph('2/28/Cour_Napol%C3%A9on_at_night_-_Louvre.jpg/960px-Cour_Napol%C3%A9on_at_night_-_Louvre.jpg','Benh LIEU SONG','CC BY 2.5','Cour_Napoléon_at_night_-_Louvre.jpg'),leg:'8 min walk'},
+ {time:'13:00',name:'Angelina',ll:[48.86514,2.32829],text:'The famous thick "chocolat africain" and the Mont-Blanc pastry, under the arcades of rue de Rivoli since 1903.',tip:'Expect a queue at lunchtime; it moves.',q:'Angelina, 226 Rue de Rivoli, Paris',...ph('6/65/Angelina_cafe_Paris_4359.jpg/960px-Angelina_cafe_Paris_4359.jpg','Gryffindor','CC BY-SA 3.0','Angelina_cafe_Paris_4359.jpg'),leg:'6 min walk'},
+ {time:'14:30',name:'Musée de l\'Orangerie',ll:[48.86378,2.32267],text:'Two oval rooms wrapped in Monet\'s Water Lilies. Or the free Petit Palais across the road.',tip:'Optional. Timed tickets recommended.',q:'Musée de l\'Orangerie, Paris',...ph('e/e8/Mus%C3%A9e_de_L%27Orangerie_Water_Lilies_Room.jpg/960px-Mus%C3%A9e_de_L%27Orangerie_Water_Lilies_Room.jpg','Brady Brenot','CC BY-SA 4.0','Musée_de_L\'Orangerie_Water_Lilies_Room.jpg'),leg:'4 min walk'},
+ {time:'16:00',name:'Tuileries Christmas market',ll:[48.8640,2.3262],night:true,tags:['market'],text:'Market no. 2 and the big one: chalets, mulled wine, fair rides and the Ferris wheel. Ride it at dusk for the view.',q:'Jardin des Tuileries, Paris',...ph('3/3b/Roue_Tuileries_Paris.jpg/960px-Roue_Tuileries_Paris.jpg','Wikimedia Commons','CC BY 3.0','Roue_Tuileries_Paris.jpg'),leg:'10 min walk'},
+ {time:'17:45',name:'Champs-Élysées Christmas market',ll:[48.8672,2.3152],night:true,tags:['market'],text:'Market no. 3, back on the lower Champs-Élysées for 2026 after about ten years away.',q:'Place de la Concorde, Paris',...ph('7/7a/La_roue_de_la_Concorde_%C3%A0_Paris_%283071648967%29.jpg/960px-La_roue_de_la_Concorde_%C3%A0_Paris_%283071648967%29.jpg','Jean-Pierre Dalbéra','CC BY 2.0','La_roue_de_la_Concorde_à_Paris_(3071648967).jpg'),leg:'20 min walk'},
+ {time:'19:00',name:'Up the Champs-Élysées',ll:[48.8725,2.2993],night:true,tags:['market'],text:'The avenue under its Christmas lights. Halfway up, the Danish House has a small Scandinavian market.',q:'Maison du Danemark, 142 Avenue des Champs-Élysées, Paris',...ph('5/55/The_Avenue_des_Champs-%C3%89lys%C3%A9es_and_the_Arc_de_Triomphe%2C_Paris_27_December_2021.jpg/960px-The_Avenue_des_Champs-%C3%89lys%C3%A9es_and_the_Arc_de_Triomphe%2C_Paris_27_December_2021.jpg','Pierre Blaché','CC0','The_Avenue_des_Champs-Élysées_and_the_Arc_de_Triomphe,_Paris_27_December_2021.jpg'),leg:'4 min walk'},
+ {time:'20:00',name:'Arc de Triomphe rooftop',ll:[48.87378,2.29504],night:true,text:'284 steps up for twelve avenues radiating out and the Champs-Élysées glittering all the way to Concorde.',tip:'Use the underpass; never cross the roundabout. Home: line 1 → line 11.',q:'Arc de Triomphe, Paris',...ph('8/8e/Arc_de_Triomphe_de_l%27%C3%89toile_at_night_vertical_fix.jpg/960px-Arc_de_Triomphe_de_l%27%C3%89toile_at_night_vertical_fix.jpg','Wilfredor','CC0','Arc_de_Triomphe_de_l\'Étoile_at_night_vertical_fix.jpg')}
+]},
+{id:'d29',date:'29',wd:'Mar',m:'déc',arr:'14e · 20e',title:'Catacombs, Père-Lachaise & a sing-along',sub:'Below ground in the morning, above it in the afternoon, then chanson and accordion five minutes from home.',stops:[
+ {time:'10:00',name:'Catacombs',ll:[48.8338,2.3324],star:true,tags:['book'],text:'An hour\'s walk through tunnels lined with the bones of six million Parisians, stacked into walls and patterns.',tip:'Timed ticket; book as soon as sales open. 130 steps down, 112 up, about 14°C. Metro: line 11 → line 4, Denfert-Rochereau.',q:'Catacombes de Paris',...ph('8/8b/Catacumbas%2C_Par%C3%ADs%2C_Francia%2C_2022-11-01%2C_DD_117-119_HDR.jpg/960px-Catacumbas%2C_Par%C3%ADs%2C_Francia%2C_2022-11-01%2C_DD_117-119_HDR.jpg','Diego Delso','CC BY-SA 4.0','Catacumbas,_París,_Francia,_2022-11-01,_DD_117-119_HDR.jpg'),leg:'5 min walk'},
+ {time:'11:30',name:'Lunch on rue Daguerre',ll:[48.8343,2.3291],text:'A pedestrian market street full of cheese shops, bakeries and cafés.',q:'Rue Daguerre, Paris',...ph('c/c6/P1010914_Paris_XIV_Rue_Daguerre_reductwk.JPG/960px-P1010914_Paris_XIV_Rue_Daguerre_reductwk.JPG','Mbzt','CC BY 3.0','P1010914_Paris_XIV_Rue_Daguerre_reductwk.JPG'),leg:'Metro 4 + 3, ~35 min'},
+ {time:'14:00',name:'Père-Lachaise',ll:[48.8612,2.3933],star:true,text:'A hilly city of tombs under bare trees: Jim Morrison, Oscar Wilde, Édith Piaf, Chopin.',tip:'Free. Closes 17:30 in winter (last entry 17:15). Grab a map at the entrance.',q:'Cimetière du Père-Lachaise, Paris',...ph('a/a2/Cemetery_P%C3%A8re-Lachaise_under_the_snow_01.jpg/960px-Cemetery_P%C3%A8re-Lachaise_under_the_snow_01.jpg','Amelia Wells','CC BY 2.0','Cemetery_Père-Lachaise_under_the_snow_01.jpg'),leg:'15 min walk'},
+ {time:'16:30',name:'Home to rest',ll:HOME,icon:'🏠',text:'Warm up before the evening.',leg:'5 min walk'},
+ {time:'20:00',name:'Le Vieux Belleville',ll:[48.8723,2.3864],night:true,tags:['book'],text:'Tuesday sing-along night: accordion, song sheets handed round, the whole room singing Piaf. Classic bistro food, mains around €26–28.',tip:'Book (TheFork or +33 1 44 62 92 66), confirm they\'re open that evening, bring some cash.',q:'Le Vieux Belleville, 12 Rue des Envierges, Paris',...ph('f/f5/Paris_-_Accordion_Player_-_0956.jpg/960px-Paris_-_Accordion_Player_-_0956.jpg','Jorge Royan','CC BY-SA 3.0','Paris_-_Accordion_Player_-_0956.jpg')}
+]},
+{id:'d30',date:'30',wd:'Mer',m:'déc',arr:'Seine-et-Marne',title:'Vaux-le-Vicomte by candlelight',sub:'The château that inspired Versailles, dressed for Christmas as a tour around the world.',stops:[
+ {time:'14:00',name:'Christmas shuttle',ll:[48.8333,2.3866],icon:'🚌',tags:['book'],text:'The château\'s own shuttle from Cour Saint-Émilion, about an hour each way. Optional early lunch at Bercy Village next door.',tip:'Metro: line 11 → Châtelet, line 14 → Cour Saint-Émilion. Book the dated shuttle ticket with return.',q:'Cour Saint-Émilion, Paris',...ph('8/80/Metro_de_Paris_-_Ligne_14_-_Cour_Saint-Emilion_02.jpg/960px-Metro_de_Paris_-_Ligne_14_-_Cour_Saint-Emilion_02.jpg','Clicsouris','CC BY-SA 3.0','Metro_de_Paris_-_Ligne_14_-_Cour_Saint-Emilion_02.jpg'),leg:'Shuttle, ~1 h'},
+ {time:'~15:00',name:'The decorated château',ll:[48.5662,2.7140],tags:['book'],text:'Room after room dressed as a Christmas journey around the world: decorated trees, automata, projections.',tip:'Château + gardens tickets, about €23–28 each in the holidays.',q:'Château de Vaux-le-Vicomte',...ph('3/34/Ch%C3%A2teau_de_Vaux-le-Vicomte_-_Grand_salon_1.JPG/960px-Ch%C3%A2teau_de_Vaux-le-Vicomte_-_Grand_salon_1.JPG','Chatsam','CC BY-SA 3.0','Château_de_Vaux-le-Vicomte_-_Grand_salon_1.JPG')},
+ {time:'~16:45',name:'Gardens at sunset',ll:[48.5642,2.7140],night:true,text:'Le Nôtre\'s formal gardens in garlands, the ice rink (+€5), and the light projection on the façade after dark.',q:'Jardins de Vaux-le-Vicomte',...ph('6/6c/Vaux_le_vicomte_1.jpg/960px-Vaux_le_vicomte_1.jpg','Jebulon','Public domain','Vaux_le_vicomte_1.jpg')},
+ {time:'18:00',name:'Hot drink at L\'Écureuil',ll:[48.5672,2.7128],night:true,text:'The château café in the old stables. Then the 19:00 shuttle back to Paris, home around 20:30.',q:'L\'Écureuil, Vaux-le-Vicomte',...ph('c/cc/%C3%89curies_Vaux-le-Vicomte.jpg/960px-%C3%89curies_Vaux-le-Vicomte.jpg','Jebulon','Public domain','Écuries_Vaux-le-Vicomte.jpg')}
+]},
+{id:'d31',date:'31',wd:'Jeu',m:'déc',arr:'18e · 9e',title:'Montmartre & New Year\'s Eve',sub:'Straight up line 2 to the hill, then rest before the big night.',stops:[
+ {time:'10:15',name:'Funicular',ll:[48.8848,2.3434],icon:'🚡',text:'Line 2 to Anvers, then the funicular or the steps up through Square Louise-Michel.',q:'Funiculaire de Montmartre',...ph('d/d1/Montmartre_Funicular%2C_Paris_22_June_2014_001.jpg/960px-Montmartre_Funicular%2C_Paris_22_June_2014_001.jpg','Dennis G. Jarvis','CC BY-SA 2.0','Montmartre_Funicular,_Paris_22_June_2014_001.jpg'),leg:'2 min'},
+ {time:'10:30',name:'Sacré-Cœur',ll:[48.8867,2.3431],star:true,text:'The white basilica on top of Paris. The view from the steps stretches across the whole city.',q:'Sacré-Cœur, Paris',...ph('b/b5/Sacr%C3%A9-C%C5%93ur%2C_Paris_December_2010.jpg/960px-Sacr%C3%A9-C%C5%93ur%2C_Paris_December_2010.jpg','Francisco Gonzalez','CC BY 2.0','Sacré-Cœur,_Paris_December_2010.jpg'),leg:'3 min walk'},
+ {time:'11:15',name:'Place du Tertre',ll:[48.8865,2.3408],star:true,text:'The painters\' square, ringed by cafés.',q:'Place du Tertre, Paris',...ph('0/07/Restaurants%2C_Place_du_Tertre%2C_Paris_30_September_2019.jpg/960px-Restaurants%2C_Place_du_Tertre%2C_Paris_30_September_2019.jpg','Pierre Blaché','CC0','Restaurants,_Place_du_Tertre,_Paris_30_September_2019.jpg'),leg:'4 min walk'},
+ {time:'11:45',name:'Rue de l\'Abreuvoir',ll:[48.8876,2.3390],text:'The prettiest street on the hill, with the pink Maison Rose at its corner.',q:'Rue de l\'Abreuvoir, Paris',...ph('2/2a/Rue_de_l%27Abreuvoir.jpg/960px-Rue_de_l%27Abreuvoir.jpg','Chris Waits','CC BY 2.0','Rue_de_l\'Abreuvoir.jpg'),leg:'4 min walk'},
+ {time:'12:15',name:'Moulin de la Galette',ll:[48.8873,2.3369],text:'One of Montmartre\'s last windmills, the one Renoir painted dancers beneath in 1876.',q:'Moulin de la Galette, Paris',...ph('6/6f/Renoir%2C_Pierre-Auguste_-_Dance_at_Le_Moulin_de_la_Galette%2C_1876.jpg/960px-Renoir%2C_Pierre-Auguste_-_Dance_at_Le_Moulin_de_la_Galette%2C_1876.jpg','Pierre-Auguste Renoir','Public domain','Renoir,_Pierre-Auguste_-_Dance_at_Le_Moulin_de_la_Galette,_1876.jpg'),leg:'8 min walk'},
+ {time:'13:00',name:'Le Mur des je t\'aime',ll:[48.8848,2.3386],text:'"I love you" in hundreds of languages on blue enamel tiles. Then lunch in the Abbesses streets around it.',q:'Le Mur des je t\'aime, Paris',...ph('4/42/Muro_de_los_je_t%27aime%2C_Par%C3%ADs%2C_Francia%2C_2022-10-30%2C_DD_01.jpg/960px-Muro_de_los_je_t%27aime%2C_Par%C3%ADs%2C_Francia%2C_2022-10-30%2C_DD_01.jpg','Diego Delso','CC BY-SA 4.0','Muro_de_los_je_t\'aime,_París,_Francia,_2022-10-30,_DD_01.jpg'),leg:'Metro 12, ~10 min'},
+ {time:'14:30',name:'Galeries Lafayette',ll:[48.8735,2.3320],text:'Optional. The giant Christmas tree under the stained-glass dome, the animated windows, and the free rooftop view. Then home to rest before New Year\'s Eve.',q:'Galeries Lafayette Haussmann, Paris',...ph('a/a9/Christmas_display_under_the_dome_at_Les_Galeries_Lafayette_in_Paris.jpg/960px-Christmas_display_under_the_dome_at_Les_Galeries_Lafayette_in_Paris.jpg','David Huang','CC BY-SA 2.0','Christmas_display_under_the_dome_at_Les_Galeries_Lafayette_in_Paris.jpg')}
+]},
+{id:'d01',date:'1',wd:'Ven',m:'jan',arr:'19e · 20e',title:'Lazy New Year\'s Day',sub:'Nothing planned on purpose.',stops:[
+ {time:'Late',name:'Sleep in',ll:HOME,icon:'🛌',text:'Coffee, leftovers, no alarms.',leg:'10 min walk'},
+ {time:'Afternoon',name:'Buttes-Chaumont',ll:[48.8809,2.3828],text:'Optional. A slow walk round the cliffs, lake and hilltop temple of the park just up the road.',q:'Parc des Buttes-Chaumont, Paris',...ph('2/21/Buttes_Chaumont_sous_la_Neige.JPG/960px-Buttes_Chaumont_sous_la_Neige.JPG','Zibou31','CC BY-SA 3.0','Buttes_Chaumont_sous_la_Neige.JPG')}
+]},
+{id:'d02',date:'2',wd:'Sam',m:'jan',arr:'20e',title:'Last morning',sub:'Open for now. One last pastry before heading home.',stops:[
+ {time:'Morning',name:'One last bûche or croissant',ll:[48.8716,2.3800],text:'Pick up something from a Belleville boulangerie for the trip home.',...ph('7/7a/B%C3%BBche_de_No%C3%ABl_chocolat_framboise_maison.jpg/960px-B%C3%BBche_de_No%C3%ABl_chocolat_framboise_maison.jpg','Jebulon','CC0','Bûche_de_Noël_chocolat_framboise_maison.jpg'),leg:'5 min walk'},
+ {time:'Later',name:'Pack up & au revoir',ll:HOME,icon:'🧳',text:'À bientôt, Paris.'}
+]}
+];
+
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:true,maxZoom:16});
+const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+L.tileLayer(ESRI+'World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,attribution:'Tiles &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors · Photos: Wikimedia Commons'}).addTo(map);
+L.tileLayer(ESRI+'World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:16}).addTo(map);
+const layer=L.layerGroup().addTo(map);
+const route=css('--route'), nightC=css('--night');
+const maps=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const photos=q=>'https://duckduckgo.com/?q='+encodeURIComponent(q)+'&iax=images&ia=images';
+const TAG={book:'<span class="tag book">to book</span>',market:'<span class="tag market">Christmas market</span>'};
+const tabs=document.getElementById('tabs'), strip=document.getElementById('strip'), scrim=document.getElementById('scrim');
+let day=null, cur=-1;
+
+tabs.innerHTML=DAYS.map(d=>`<button class="tab" role="tab" type="button" data-id="${d.id}" aria-selected="false">${d.wd}<b>${d.date}</b>${d.m}</button>`).join('');
+tabs.addEventListener('click',e=>{const t=e.target.closest('.tab');if(t)showDay(t.dataset.id,true)});
+
+// Countdown to 23 Dec 2026
+(function(){const ms=new Date('2026-12-23T12:00:00+01:00')-new Date();const d=Math.ceil(ms/864e5);
+  document.getElementById('count').innerHTML=d>0?`<b>${d}</b>days to go`:'<b>🎄</b>en route';})();
+
+function pinHTML(s,i){
+  const n=`<span class="n">${i+1}</span><span class="t">${s.time}</span>`;
+  return s.img?`<div class="pin ${s.night?'night':''}" style="background-image:url('${s.img}')">${n}</div>`
+              :`<div class="pin icon ${s.night?'night':''}">${s.icon||'⭐'}${n}</div>`;
+}
+function showDay(id,fromUser){
+  day=DAYS.find(d=>d.id===id)||DAYS[0]; closeCard();
+  tabs.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.id===day.id));
+  if(fromUser)tabs.querySelector(`[data-id="${day.id}"]`).scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  document.getElementById('plaque').innerHTML=`<span class="arr">${day.arr}</span><span class="d">${day.date}</span><span class="wd">${day.wd} · ${day.m}</span>`;
+  document.getElementById('title').textContent=day.title;
+  document.getElementById('sub').textContent=day.sub+' Tap a photo. 🎄';
+  document.title='Paris Noël · '+day.date+' '+day.m;
+  try{history.replaceState(null,'','#'+day.id)}catch(e){}
+  layer.clearLayers();
+  const S=day.stops;
+  for(let i=0;i<S.length-1;i++){
+    const a=S[i].ll,b=S[i+1].ll; if(a[0]===b[0]&&a[1]===b[1])continue;
+    const col=S[i+1].night?nightC:route;
+    const line=L.polyline([a,b],{color:col,weight:3,opacity:.9,dashArray:'6 7'}).addTo(layer);
+    L.polylineDecorator(line,{patterns:[{offset:'58%',repeat:0,symbol:L.Symbol.arrowHead({pixelSize:13,polygon:true,pathOptions:{color:col,fillColor:col,fillOpacity:1,weight:0}})}]}).addTo(layer);
+    if(S[i].leg){const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+      const ic=/metro|rer|shuttle/i.test(S[i].leg)?'🚇':'🚶';
+      L.marker(mid,{interactive:false,icon:L.divIcon({className:'',html:`<span class="leg">${ic} ${S[i].leg}</span>`,iconSize:null,iconAnchor:[0,-6]})}).addTo(layer);}
+  }
+  // stagger duplicate locations slightly so pins don't hide each other
+  const seen={};
+  S.forEach((s,i)=>{
+    const key=s.ll.join(','); const k=seen[key]=(seen[key]||0)+1; const ll=k>1?[s.ll[0]+0.0006*(k-1),s.ll[1]+0.0009*(k-1)]:s.ll;
+    const m=L.marker(ll,{title:s.name,keyboard:true,riseOnHover:true,icon:L.divIcon({className:'',iconSize:[58,58],iconAnchor:[29,29],html:pinHTML(s,i)})}).addTo(layer);
+    m.on('click',()=>openCard(i));
+  });
+  map.fitBounds(L.latLngBounds(S.map(s=>s.ll)).pad(.25),{maxZoom:15});
+  strip.innerHTML=S.map((s,i)=>`<button class="frame" data-i="${i}" type="button">${s.img?`<img src="${s.img}" alt="" loading="lazy">`:`<div class="ico">${s.icon||'⭐'}</div>`}<span><b>${i+1} · ${s.time}</b>${s.name}</span></button>`).join('');
+  strip.scrollLeft=0;
+}
+strip.addEventListener('click',e=>{const f=e.target.closest('.frame');if(f)openCard(+f.dataset.i)});
+
+function setActive(i){
+  document.querySelectorAll('.pin').forEach((p,k)=>p.classList.toggle('active',k===i));
+  document.querySelectorAll('.frame').forEach((f,k)=>f.classList.toggle('active',k===i));
+}
+function openCard(i){
+  cur=i; const S=day.stops, s=S[i], n=S[i+1];
+  const tags=[s.star?'<span class="tag star">⭐ must-do</span>':'',...(s.tags||[]).map(t=>TAG[t])].join('');
+  const fig=s.img?`<figure><img src="${s.img}" alt="${s.name}"><figcaption>Photo: <a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(s.credit[2])}" target="_blank" rel="noopener">${s.credit[0]}</a>, ${s.credit[1]}</figcaption><button class="close" type="button" aria-label="Close">×</button></figure>`
+                 :`<figure><div class="ico">${s.icon||'⭐'}</div><button class="close" type="button" aria-label="Close">×</button></figure>`;
+  scrim.innerHTML=`<article class="card" role="dialog" aria-modal="true" aria-label="${s.name}">${fig}
+    <div class="body">
+      <div class="meta"><span class="num">${i+1}</span><span>${s.time}</span>${tags}</div>
+      <h2>${s.name}</h2>
+      <p>${s.text}</p>
+      ${s.tip?`<div class="tip">${s.tip}</div>`:''}
+      ${s.q?`<div class="links"><a class="btn" href="${maps(s.q)}" target="_blank" rel="noopener">📍 Google Maps</a><a class="btn" href="${photos(s.q)}" target="_blank" rel="noopener">📷 More photos</a></div>`:''}
+      <div class="nav">
+        <button class="btn prev" type="button" ${i===0?'disabled':''}>← Previous</button>
+        <button class="btn next" type="button" ${n?'':'disabled'}>${n?`Next: ${n.name} →`:(nextDay()?`${nextDay().wd} ${nextDay().date} →`:'À bientôt!')}</button>
+      </div>
+    </div></article>`;
+  scrim.hidden=false; setActive(i);
+  map.panTo(s.ll,{animate:true});
+  strip.querySelector(`[data-i="${i}"]`).scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  scrim.querySelector('.close').focus();
+}
+function nextDay(){const k=DAYS.indexOf(day);return DAYS[k+1];}
+function closeCard(){scrim.hidden=true;setActive(-1);}
+scrim.addEventListener('click',e=>{
+  if(e.target===scrim||e.target.closest('.close'))closeCard();
+  else if(e.target.closest('.prev')&&cur>0)openCard(cur-1);
+  else if(e.target.closest('.next')){ if(cur<day.stops.length-1)openCard(cur+1); else if(nextDay()){showDay(nextDay().id,true);openCard(0);} }
+});
+document.addEventListener('keydown',e=>{
+  if(scrim.hidden)return;
+  if(e.key==='Escape')closeCard();
+  if(e.key==='ArrowRight'&&cur<day.stops.length-1)openCard(cur+1);
+  if(e.key==='ArrowLeft'&&cur>0)openCard(cur-1);
+});
+
+// Start on today's date during the trip, else on the linked day, else day one
+(function(){
+  const h=(location.hash||'').slice(1); if(DAYS.some(d=>d.id===h))return showDay(h);
+  const now=new Date(), m=now.getMonth(), dd=now.getDate();
+  const id=(m===11&&dd>=23)?'d'+dd:(m===0&&dd<=2?'d0'+dd:'d23');
+  showDay(DAYS.some(d=>d.id===id)?id:'d23');
+})();
+// Falling snow
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const c=document.getElementById('snow'),x=c.getContext('2d');let W,H,F=[];
+  const P=c.parentElement;const size=()=>{W=c.width=P.clientWidth*devicePixelRatio;H=c.height=P.clientHeight*devicePixelRatio;};
+  size();addEventListener('resize',size);if(window.ResizeObserver)new ResizeObserver(size).observe(P);
+  for(let i=0;i<90;i++)F.push({x:Math.random(),y:Math.random(),r:1+Math.random()*2.6,s:.0006+Math.random()*.0012,d:Math.random()*6});
+  (function tick(t){x.clearRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.85)';
+    for(const f of F){f.y+=f.s;if(f.y>1.02){f.y=-.02;f.x=Math.random();}
+      const px=(f.x+Math.sin(t/2000+f.d)*.01)*W;x.beginPath();x.arc(px,f.y*H,f.r*devicePixelRatio,0,7);x.fill();}
+    requestAnimationFrame(tick);})(0);
+})();
+</script>
+</body>
+</html>
