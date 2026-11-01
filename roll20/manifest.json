@@ -1,0 +1,12 @@
+{
+    "name": "Roll20 Macro Builder",
+    "short_name": "Roll20 Macros",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#1a1510",
+    "theme_color": "#1a1510",
+    "icons": [
+        { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
