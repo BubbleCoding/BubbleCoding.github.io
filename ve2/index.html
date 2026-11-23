@@ -25,32 +25,15 @@
     <section class="intro">
       <div>
         <h1>VE2 feedback-generator</h1>
-        <p>Vink per leeruitkomst de succescriteria aan die de student <strong>overtuigend en herhaald</strong> laat zien, kies het niveau en kopieer de feedbacktekst. Aangevinkt = sterk punt, niet aangevinkt = werkpunt. Er wordt niets opgeslagen of verstuurd.</p>
+        <p>Vink per leeruitkomst de succescriteria aan die de student <strong>overtuigend en herhaald</strong> laat zien, kies het niveau en kopieer de feedbacktekst per leeruitkomst. Aangevinkt = sterk punt, niet aangevinkt = werkpunt. Er wordt niets opgeslagen of verstuurd.</p>
       </div>
       <div class="intro-controls">
-        <label class="field">
-          <span>Voornaam student (optioneel)</span>
-          <input type="text" id="student-name" autocomplete="off" placeholder="bijv. Sam">
-        </label>
         <button type="button" class="btn btn-ghost" id="reset-btn">Alles wissen</button>
       </div>
       <nav class="lo-jump" id="lo-jump" aria-label="Spring naar leeruitkomst"></nav>
     </section>
 
-    <div class="ve2-layout">
-      <main id="lo-cards" class="lo-cards"></main>
-
-      <aside class="total" aria-labelledby="total-title">
-        <div class="total-inner">
-          <div class="total-head">
-            <h2 id="total-title">Volledige feedback</h2>
-            <button type="button" class="btn btn-primary" id="copy-all">Kopieer alles</button>
-          </div>
-          <textarea id="total-text" readonly aria-label="Volledige feedbacktekst"></textarea>
-          <p class="hint">Aanpassen? Doe dat in het voorbeeld per leeruitkomst; dit totaal neemt je aanpassingen over.</p>
-        </div>
-      </aside>
-    </div>
+    <main id="lo-cards" class="lo-cards"></main>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

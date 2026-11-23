@@ -52,13 +52,6 @@
     return lines.join("\n");
   }
 
-  function buildTotal() {
-    const name = $("#student-name").value.trim();
-    const greeting = name ? TEXTS.greetingWithName.replaceAll("{naam}", name) : TEXTS.greetingNoName;
-    const blocks = LEARNING_OUTCOMES.map(lo => $(`#preview-${lo.id}`).value.trim());
-    return [greeting, TEXTS.intro, ...blocks, TEXTS.closing].filter(Boolean).join("\n\n");
-  }
-
   // Render text with **bold** markers safely (no innerHTML).
   function rich(text) {
     const frag = document.createDocumentFragment();
@@ -146,7 +139,7 @@
     const badge = el("span", { class: "badge-edited", hidden: "", text: "handmatig aangepast" });
     const regen = el("button", { type: "button", class: "linklike", hidden: "", text: "↺ Opnieuw genereren" });
     const copyBtn = el("button", { type: "button", class: "btn", text: "Kopieer" });
-    preview.addEventListener("input", () => { s.edited = true; syncEdited(lo); renderTotal(); });
+    preview.addEventListener("input", () => { s.edited = true; syncEdited(lo); });
     regen.addEventListener("click", () => {
       if (!confirm("Je handmatige aanpassingen in deze tekst gaan verloren. Doorgaan?")) return;
       s.edited = false; update(lo);
@@ -183,10 +176,7 @@
     if (!state[lo.id].edited) $(`#preview-${lo.id}`).value = buildLoText(lo);
     syncEdited(lo);
     renderJump();
-    renderTotal();
   }
-
-  function renderTotal() { $("#total-text").value = buildTotal(); }
 
   // ---------- Copy ----------
   const toast = $("#toast");
@@ -231,12 +221,9 @@
   }
   renderAll();
 
-  $("#student-name").addEventListener("input", renderTotal);
-  $("#copy-all").addEventListener("click", e => copy($("#total-text").value, e.currentTarget, "Volledige feedback gekopieerd"));
   $("#reset-btn").addEventListener("click", () => {
     if (!confirm("Alle vinkjes, niveaus en opmerkingen wissen voor een nieuwe student?")) return;
     freshState();
-    $("#student-name").value = "";
     renderAll();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });

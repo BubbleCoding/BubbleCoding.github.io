@@ -242,14 +242,9 @@ const LEARNING_OUTCOMES = [
   }
 ];
 
-/* Teksten rondom de feedback. {naam} wordt vervangen door de ingevulde voornaam.
-   Leeg laten ("") = weglaten. */
+/* Kopjes in de feedbacktekst. */
 const TEXTS = {
-  greetingWithName: "Hoi {naam},",
-  greetingNoName: "",
-  intro: "",
   strengthsHeading: "Goed:",
   improveHeading: "Werkpunten:",
-  noteHeading: "Opmerking:",
-  closing: ""
+  noteHeading: "Opmerking:"
 };
