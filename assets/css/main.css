@@ -403,6 +403,10 @@ body.note-page { background: var(--bg); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 700px) {
+  .header-inner { height: auto; min-height: var(--header-h); flex-wrap: wrap; gap: 4px 16px; padding: 10px 0; }
+  .site-title { white-space: nowrap; }
+  .site-header nav { flex-wrap: wrap; gap: 4px 14px; }
+  .site-header nav a { white-space: nowrap; }
   .layout { flex-direction: column; }
   .sidebar {
     width: 100%;
