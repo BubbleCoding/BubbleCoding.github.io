@@ -144,7 +144,8 @@ textarea {
   background: var(--card); resize: vertical;
 }
 .note { min-height: 64px; }
-.preview { min-height: 220px; background: var(--surface); font-size: 0.85rem; }
+.crit-text strong, .crit-note strong { font-weight: 650; color: var(--text); }
+.preview { min-height: 150px; background: var(--surface); font-size: 0.85rem; }
 .preview.edited { background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 40%, var(--border)); }
 
 .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 8px; flex-wrap: wrap; }

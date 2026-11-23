@@ -33,35 +33,39 @@
     const lvl = levelOf(s.level);
     const heading = `${lo.code} ${lo.title}` + (lvl ? ` – niveau ${lvl.value} (${lvl.label})` : "");
     lines.push(heading);
-    if (lvl) lines.push(lvl.text.replaceAll("{lo}", lo.title));
+    if (lvl && lvl.text) lines.push(lvl.text.replaceAll("{lo}", lo.title));
 
     const good = lo.criteria.filter(c => s.checked.has(c.letter));
     const todo = lo.criteria.filter(c => !s.checked.has(c.letter));
 
     if (good.length) {
-      lines.push("", TEXTS.strengthsHeading);
+      lines.push(TEXTS.strengthsHeading);
       good.forEach(c => lines.push(`- ${c.positive}`));
     }
     if (todo.length) {
-      lines.push("", TEXTS.improveHeading);
+      lines.push(TEXTS.improveHeading);
       todo.forEach(c => lines.push(`- ${c.improve}`));
-      if (lo.improveFooter) lines.push("", lo.improveFooter);
+      if (lo.improveFooter) lines.push(lo.improveFooter);
     }
     const note = s.note.trim();
-    if (note) lines.push("", `${TEXTS.noteHeading} ${note}`);
+    if (note) lines.push(`${TEXTS.noteHeading} ${note}`);
     return lines.join("\n");
   }
 
   function buildTotal() {
     const name = $("#student-name").value.trim();
-    const parts = [];
-    parts.push(name ? TEXTS.greetingWithName.replaceAll("{naam}", name) : TEXTS.greetingNoName);
-    if (TEXTS.intro) parts.push(TEXTS.intro);
-    const head = parts.join("\n\n");
-    const blocks = LEARNING_OUTCOMES.map(lo => $(`#preview-${lo.id}`).value.trim()).filter(Boolean);
-    const all = [head, ...blocks];
-    if (TEXTS.closing) all.push(TEXTS.closing);
-    return all.join("\n\n");
+    const greeting = name ? TEXTS.greetingWithName.replaceAll("{naam}", name) : TEXTS.greetingNoName;
+    const blocks = LEARNING_OUTCOMES.map(lo => $(`#preview-${lo.id}`).value.trim());
+    return [greeting, TEXTS.intro, ...blocks, TEXTS.closing].filter(Boolean).join("\n\n");
+  }
+
+  // Render text with **bold** markers safely (no innerHTML).
+  function rich(text) {
+    const frag = document.createDocumentFragment();
+    String(text).split(/\*\*(.+?)\*\*/g).forEach((part, i) => {
+      if (part) frag.append(i % 2 ? el("strong", { text: part }) : document.createTextNode(part));
+    });
+    return frag;
   }
 
   // ---------- Rendering ----------
@@ -96,7 +100,7 @@
     lo.criteria.forEach(c => {
       const cbId = `cb-${lo.id}-${c.letter}`;
       const cb = el("input", { type: "checkbox", id: cbId, "data-letter": c.letter });
-      const note = el("div", { class: "crit-note", hidden: "" , text: c.ve2Note });
+      const note = el("div", { class: "crit-note", hidden: "" }, rich(c.ve2Note));
       const toggle = el("button", { type: "button", class: "linklike", "aria-expanded": "false", text: "ℹ Wat verwachten we bij VE2?" });
       toggle.addEventListener("click", () => {
         const open = note.hasAttribute("hidden");
@@ -107,7 +111,7 @@
         el("label", { class: "crit-main", for: cbId }, [
           cb,
           el("span", { class: "crit-letter", text: c.letter }),
-          el("span", { class: "crit-text", text: c.text })
+          el("span", { class: "crit-text" }, rich(c.text))
         ]),
         el("div", { class: "crit-tools" }, [toggle, note])
       ]);
